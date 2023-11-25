@@ -1,7 +1,4 @@
 using System.Globalization;
-using System.Runtime.CompilerServices;
-using SkiaSharp.Views.Desktop;
-using SkiaSharp.Views.Gtk;
 using Window = Gtk.Window;
 
 namespace TuringLikePatterns;
@@ -10,7 +7,6 @@ internal sealed class MainWindow : Window
 {
     private readonly GameStateManager _gameStateManager;
     private readonly Grid _grid;
-    private readonly SKDrawingArea _drawingArea;
 
     public MainWindow(GameStateManager gameStateManager)
         : this(gameStateManager, new Builder("MainWindow.glade"))
@@ -26,33 +22,29 @@ internal sealed class MainWindow : Window
         DeleteEvent += (o, args) => Application.Quit();
         Name = "Turing-like Patterns";
 
-        var child = new HBox();
+        var drawingArea = new TileDrawingArea(_gameStateManager);
+        drawingArea.Show();
 
-        _drawingArea = new SKDrawingArea();
-        _drawingArea.PaintSurface += OnPaintSurface;
-        _gameStateManager.OnGameTickPassed += (sender, args) => _drawingArea.QueueDraw();
-        _drawingArea.Show();
-
-        child.PackStart(_drawingArea, true, true, 0);
-
-        _grid = new Grid()
+        _grid = new Grid
         {
             ColumnSpacing = 5,
             RowSpacing = 5,
             WidthRequest = 150,
         };
-
         var currentRow = 0;
+        currentRow = AttachStatistics(currentRow);
+        currentRow = AttachActions(currentRow);
+        _grid.Show();
 
-        var statsLabel = new Label("== Statistics ==");
-        statsLabel.Show();
-        _grid.Attach(statsLabel, 0, currentRow++, 2, 1);
+        var child = new HBox();
+        child.PackStart(drawingArea, true, true, 0);
+        child.PackEnd(_grid, false, false, 0);
+        child.Show();
+        Child = child;
+    }
 
-        AttachStatisticRow("Ticks", currentRow++, state => state.TickCount.ToString(CultureInfo.CurrentCulture));
-        AttachStatisticRow("Tiles live", currentRow++, state => state.Tiles.NonEmptyCount.ToString(CultureInfo.CurrentCulture));
-        AttachStatisticRow("Top left", currentRow++, state => state.Tiles.TopLeft.ToString());
-        AttachStatisticRow("Bottom right", currentRow++, state => state.Tiles.BottomRight.ToString());
-
+    private int AttachActions(int currentRow)
+    {
         var actionsLabel = new Label("== Actions ==");
         actionsLabel.Show();
         _grid.Attach(actionsLabel, 0, currentRow++, 2, 1);
@@ -60,53 +52,24 @@ internal sealed class MainWindow : Window
         var tickButtonLabel = new Label("Tick");
         tickButtonLabel.Show();
         var tickButton = new Button(tickButtonLabel);
-        tickButton.Clicked += (sender, args) => _gameStateManager.Tick();
+        tickButton.Clicked += (_, _) => _gameStateManager.Tick();
         tickButton.Show();
         _grid.Attach(tickButton, 0, currentRow++, 2, 1);
-
-        _grid.Show();
-        child.PackEnd(_grid, false, false, 0);
-
-        child.Show();
-        Child = child;
+        return currentRow;
     }
 
-    private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
+    private int AttachStatistics(int currentRow)
     {
-        var canvas = e.Surface.Canvas;
-        var info = e.Info;
+        var statsLabel = new Label("== Statistics ==");
+        statsLabel.Show();
+        _grid.Attach(statsLabel, 0, currentRow++, 2, 1);
 
-        canvas.Save();
-        canvas.Clear(SKColors.Black);
-
-        var state = _gameStateManager.GetCurrentGameStateDoNotUseThis();
-        var topLeft = state.Tiles.TopLeft;
-        var bottomRight = state.Tiles.BottomRight;
-        var logicalWidth = bottomRight.X - topLeft.X + 10;
-        var logicalHeight = bottomRight.Y - topLeft.Y + 10;
-        var sx = (float)info.Size.Width / logicalWidth;
-        var sy = (float)info.Size.Height / logicalHeight;
-        var s = Math.Min(sx, sy); // keep ratio
-        canvas.Scale(s, s, topLeft.X,topLeft.Y);
-
-        using var tileMarkerPaint = new SKPaint
-        {
-            Color = SKColors.Gray,
-            Style = SKPaintStyle.Stroke
-        };
-        foreach (var (pos, tile) in state.Tiles)
-        {
-            canvas.DrawRect(pos.X, pos.Y, 0.9f, 0.9f, tileMarkerPaint);
-        }
-
-        using var redPaint = new SKPaint
-        {
-            Color = SKColors.Red,
-            Style = SKPaintStyle.Stroke
-        };
-        canvas.DrawRect(0f,0f,100f,100f, redPaint);
-
-        canvas.Restore();
+        AttachStatisticRow("Ticks", currentRow++, state => state.TickCount.ToString(CultureInfo.CurrentCulture));
+        AttachStatisticRow("Tiles live", currentRow++,
+            state => state.Tiles.NonEmptyCount.ToString(CultureInfo.CurrentCulture));
+        AttachStatisticRow("Top left", currentRow++, state => state.Tiles.TopLeft.ToString());
+        AttachStatisticRow("Bottom right", currentRow++, state => state.Tiles.BottomRight.ToString());
+        return currentRow;
     }
 
     private void AttachStatisticRow(string description, int top, Func<GameState, string> onChange)
@@ -116,7 +79,7 @@ internal sealed class MainWindow : Window
         _grid.Attach(descriptionLabel, 0, top, 1, 1);
 
         var valueLabel = new Label("<Value>");
-        _gameStateManager.OnGameTickPassed += (sender, args) => { valueLabel.Text = onChange(args.NewGameState); };
+        _gameStateManager.GameTickPassed += (sender, args) => { valueLabel.Text = onChange(args.NewGameState); };
         valueLabel.Show();
         _grid.Attach(valueLabel, 1, top, 1, 1);
     }

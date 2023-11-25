@@ -5,32 +5,36 @@ namespace TuringLikePatterns;
 public static class Program
 {
     [STAThread]
-    public static void Main(string[] args)
+    public static void Main()
     {
         Application.Init();
 
+        var gsm = GetDefaultInitialState();
+        var win = new MainWindow(gsm);
+        win.Show();
+
         var app = new Application("com.example.turing_like_patterns", GLib.ApplicationFlags.None);
         app.Register(GLib.Cancellable.Current);
+        app.AddWindow(win);
 
-        var initialState = new GameState(
-            TickCount: 0,
-            Tiles: new GameStateTiles(new Dictionary<GamePosition, GameTile>()
-            {
-                { new GamePosition(10, 10), new GameTile(1000, 1000, 0) },
-                { new GamePosition(25, 85), new GameTile(100, 100, 0) },
-            })
-        );
+        Application.Run();
+    }
+
+    private static GameStateManager GetDefaultInitialState()
+    {
+        var tiles = new GameStateTiles(new Dictionary<GamePosition, GameTile>()
+        {
+            { new GamePosition(10, 10), new GameTile(1000, 1000) },
+            { new GamePosition(25, 85), new GameTile(100, 100) },
+        });
+        var initialState = new GameState(TickCount: 0, Tiles: tiles);
+
         var mutationGenerators = new List<IMutationGenerator>
         {
             new TickIncrementerMutationGenerator(),
             new BrownianMotionMutationGenerator(),
         };
-        var gsm = new GameStateManager(initialState, mutationGenerators);
 
-        var win = new MainWindow(gsm);
-        app.AddWindow(win);
-
-        win.Show();
-        Application.Run();
+        return new GameStateManager(initialState, mutationGenerators);
     }
 }
