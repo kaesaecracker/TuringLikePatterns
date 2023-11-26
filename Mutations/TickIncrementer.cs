@@ -2,11 +2,11 @@ namespace TuringLikePatterns.Mutations;
 
 internal sealed class TickIncrementerMutationGenerator : IMutationGenerator
 {
-    private readonly IGameStateMutation[] _mutationsSingleton = { new TickIncrementerMutation() };
+    private static readonly IGameStateMutation[] MutationsSingleton = { new TickIncrementerMutation() };
 
     public IEnumerable<IGameStateMutation> GetMutations(GameState state)
     {
-        return _mutationsSingleton;
+        return MutationsSingleton;
     }
 }
 

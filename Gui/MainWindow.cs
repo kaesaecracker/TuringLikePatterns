@@ -1,7 +1,7 @@
 using System.Globalization;
 using Window = Gtk.Window;
 
-namespace TuringLikePatterns;
+namespace TuringLikePatterns.Gui;
 
 internal sealed class MainWindow : Window
 {
@@ -25,12 +25,7 @@ internal sealed class MainWindow : Window
         var drawingArea = new TileDrawingArea(_gameStateManager);
         drawingArea.Show();
 
-        _grid = new Grid
-        {
-            ColumnSpacing = 5,
-            RowSpacing = 5,
-            WidthRequest = 150,
-        };
+        _grid = new Grid { ColumnSpacing = 5, RowSpacing = 5, WidthRequest = 150 };
         var currentRow = 0;
         currentRow = AttachStatistics(currentRow);
         currentRow = AttachActions(currentRow);

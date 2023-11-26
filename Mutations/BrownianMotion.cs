@@ -1,40 +1,24 @@
 namespace TuringLikePatterns.Mutations;
 
-internal sealed class BrownianMotionMutationGenerator : IMutationGenerator
+internal sealed class BrownianMotionMutationGenerator(float threshold, float portionToSpread) : IMutationGenerator
 {
     public IEnumerable<IGameStateMutation> GetMutations(GameState state)
     {
-        foreach (var (pos, tile) in state.Tiles)
+        foreach (var (position, tile) in state.Tiles)
+        foreach (var (quantity, amount) in tile.Quantities)
         {
-            if (tile.Hydrogen > 1)
-            {
-                var amount = tile.Hydrogen / 100;
-                yield return new AddHydrogenMutation(pos, -amount);
-                yield return new AddHydrogenMutation(pos.Left(), amount / 4);
-                yield return new AddHydrogenMutation(pos.Top(), amount / 4);
-                yield return new AddHydrogenMutation(pos.Right(), amount / 4);
-                yield return new AddHydrogenMutation(pos.Bottom(), amount / 4);
-            }
+            if (amount <= threshold)
+                continue;
 
-            if (tile.Oxygen > 1)
-            {
-                var amount = tile.Oxygen / 100;
-                yield return new AddOxygenMutation(pos, -amount);
-                yield return new AddOxygenMutation(pos.Left(), amount / 4);
-                yield return new AddOxygenMutation(pos.Top(), amount / 4);
-                yield return new AddOxygenMutation(pos.Right(), amount / 4);
-                yield return new AddOxygenMutation(pos.Bottom(), amount / 4);
-            }
+            var amountToSpread = amount / portionToSpread;
 
-            if (tile.Water > 1)
-            {
-                var amount = tile.Water / 100;
-                yield return new AddWaterMutation(pos, -amount);
-                yield return new AddWaterMutation(pos.Left(), amount / 4);
-                yield return new AddWaterMutation(pos.Top(), amount / 4);
-                yield return new AddWaterMutation(pos.Right(), amount / 4);
-                yield return new AddWaterMutation(pos.Bottom(), amount / 4);
-            }
+            yield return AddQuantityMutation.Get(position, quantity, -amountToSpread);
+
+            var amountForNeighbors = amountToSpread / 4;
+            yield return AddQuantityMutation.Get(position.Left(), quantity, amountForNeighbors);
+            yield return AddQuantityMutation.Get(position.Top(), quantity, amountForNeighbors);
+            yield return AddQuantityMutation.Get(position.Right(), quantity, amountForNeighbors);
+            yield return AddQuantityMutation.Get(position.Bottom(), quantity, amountForNeighbors);
         }
     }
 }

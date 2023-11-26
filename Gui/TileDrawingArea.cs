@@ -1,7 +1,7 @@
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.Gtk;
 
-namespace TuringLikePatterns;
+namespace TuringLikePatterns.Gui;
 
 internal sealed class TileDrawingArea : SKDrawingArea
 {
@@ -53,9 +53,7 @@ internal sealed class TileDrawingArea : SKDrawingArea
         tileMarkerPaint.Style = SKPaintStyle.Stroke;
 
         foreach (var (pos, _) in state.Tiles)
-        {
             canvas.DrawRect(pos.X, pos.Y, 0.9f, 0.9f, tileMarkerPaint);
-        }
     }
 
     private static void DrawDebugSquare(SKCanvas canvas)

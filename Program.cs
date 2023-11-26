@@ -1,4 +1,7 @@
-﻿using TuringLikePatterns.Mutations;
+using GLib;
+using TuringLikePatterns.Gui;
+using TuringLikePatterns.Mutations;
+using Application = Gtk.Application;
 
 namespace TuringLikePatterns;
 
@@ -13,8 +16,8 @@ public static class Program
         var win = new MainWindow(gsm);
         win.Show();
 
-        var app = new Application("com.example.turing_like_patterns", GLib.ApplicationFlags.None);
-        app.Register(GLib.Cancellable.Current);
+        var app = new Application("com.example.turing_like_patterns", ApplicationFlags.None);
+        app.Register(Cancellable.Current);
         app.AddWindow(win);
 
         Application.Run();
@@ -22,17 +25,23 @@ public static class Program
 
     private static GameStateManager GetDefaultInitialState()
     {
-        var tiles = new GameStateTiles(new Dictionary<GamePosition, GameTile>()
+        var tiles = new GameStateTiles(new AutoPoolingDictionary<GamePosition, GameTile>
         {
-            { new GamePosition(10, 10), new GameTile(1000, 1000) },
-            { new GamePosition(25, 85), new GameTile(100, 100) },
+            {
+                new GamePosition(10, 10),
+                new GameTile(new AutoPoolingDictionary<Quantity, float> { { Quantity.Oxygen, 1000 } })
+            },
+            {
+                new GamePosition(25, 30),
+                new GameTile(new AutoPoolingDictionary<Quantity, float> { { Quantity.Hydrogen, 1000 } })
+            },
         });
-        var initialState = new GameState(TickCount: 0, Tiles: tiles);
+        var initialState = new GameState(0, tiles);
 
         var mutationGenerators = new List<IMutationGenerator>
         {
             new TickIncrementerMutationGenerator(),
-            new BrownianMotionMutationGenerator(),
+            new BrownianMotionMutationGenerator(1f, 0.01f),
         };
 
         return new GameStateManager(initialState, mutationGenerators);
