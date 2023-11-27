@@ -10,9 +10,9 @@ internal sealed record class GameState(
 
 internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, GameTile>>
 {
-    private readonly AutoPoolingDictionary<GamePosition, GameTile> _raw;
+    private readonly Dictionary<GamePosition, GameTile> _raw;
 
-    public GameStateTiles(AutoPoolingDictionary<GamePosition, GameTile> raw)
+    public GameStateTiles(Dictionary<GamePosition, GameTile> raw)
     {
         ArgumentNullException.ThrowIfNull(raw);
         _raw = raw;
@@ -21,9 +21,7 @@ internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, Ga
         BottomRight = new GamePosition(long.MinValue, long.MinValue);
 
         foreach (var (pos, _) in _raw)
-        {
             RefreshBounds(pos);
-        }
     }
 
     private void RefreshBounds(GamePosition pos)
@@ -51,7 +49,7 @@ internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, Ga
             if (_raw.TryGetValue(pos, out var result))
                 return result;
 
-            var newTile = new GameTile(new AutoPoolingDictionary<Quantity, float>());
+            var newTile = new GameTile(new Dictionary<Quantity, float>());
             this[pos] = newTile;
             return newTile;
         }
@@ -82,7 +80,7 @@ internal readonly record struct GamePosition(long X, long Y)
     public override string ToString() => $"({X} | {Y})";
 }
 
-internal sealed class GameTile(AutoPoolingDictionary<Quantity, float> raw) : IEnumerable<KeyValuePair<Quantity, float>>
+internal sealed class GameTile(Dictionary<Quantity, float> raw) : IEnumerable<KeyValuePair<Quantity, float>>
 {
     public float this[Quantity q]
     {

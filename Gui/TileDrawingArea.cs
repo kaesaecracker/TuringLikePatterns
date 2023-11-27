@@ -33,7 +33,6 @@ internal sealed class TileDrawingArea : SKDrawingArea
         var state = _lastKnownState;
         ApplyScale(state.Tiles.TopLeft, state.Tiles.BottomRight, info.Size, canvas);
         DrawTiles(state, canvas);
-        DrawDebugSquare(canvas);
     }
 
     private static void ApplyScale(GamePosition topLeft, GamePosition bottomRight, SKSizeI canvasSize, SKCanvas canvas)
@@ -54,14 +53,5 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
         foreach (var (pos, _) in state.Tiles)
             canvas.DrawRect(pos.X, pos.Y, 0.9f, 0.9f, tileMarkerPaint);
-    }
-
-    private static void DrawDebugSquare(SKCanvas canvas)
-    {
-        using var redPaint = new SKPaint();
-        redPaint.Color = SKColors.Red;
-        redPaint.Style = SKPaintStyle.Stroke;
-
-        canvas.DrawRect(0f, 0f, 100f, 100f, redPaint);
     }
 }

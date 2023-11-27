@@ -25,15 +25,15 @@ public static class Program
 
     private static GameStateManager GetDefaultInitialState()
     {
-        var tiles = new GameStateTiles(new AutoPoolingDictionary<GamePosition, GameTile>
+        var tiles = new GameStateTiles(new Dictionary<GamePosition, GameTile>
         {
             {
                 new GamePosition(10, 10),
-                new GameTile(new AutoPoolingDictionary<Quantity, float> { { Quantity.Oxygen, 1000 } })
+                new GameTile(new Dictionary<Quantity, float> { { Quantity.Oxygen, 1000 } })
             },
             {
                 new GamePosition(25, 30),
-                new GameTile(new AutoPoolingDictionary<Quantity, float> { { Quantity.Hydrogen, 1000 } })
+                new GameTile(new Dictionary<Quantity, float> { { Quantity.Hydrogen, 1000 } })
             },
         });
         var initialState = new GameState(0, tiles);

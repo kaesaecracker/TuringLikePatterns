@@ -4,10 +4,7 @@ internal sealed class TickIncrementerMutationGenerator : IMutationGenerator
 {
     private static readonly IGameStateMutation[] MutationsSingleton = { new TickIncrementerMutation() };
 
-    public IEnumerable<IGameStateMutation> GetMutations(GameState state)
-    {
-        return MutationsSingleton;
-    }
+    public IEnumerable<IGameStateMutation> GetMutations(GameState state) => MutationsSingleton;
 }
 
 internal sealed class TickIncrementerMutation : IGameStateMutation

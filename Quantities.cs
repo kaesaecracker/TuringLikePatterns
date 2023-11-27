@@ -1,17 +1,13 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TuringLikePatterns;
 
-internal readonly struct Quantity
+internal sealed record class Quantity
 {
-    private Quantity(string name, SKColor color)
-    {
-        Name = name;
-        Color = color;
-    }
+    internal static Quantity Water { get; } = new() { Name = nameof(Water), Color = SKColors.Aqua };
+    internal static Quantity Hydrogen { get; } = new() { Name = nameof(Hydrogen), Color = SKColors.Blue };
+    internal static Quantity Oxygen { get; } = new() { Name = nameof(Oxygen), Color = SKColors.White };
 
-    public string Name { get; init; }
-    public SKColor Color { get; init; }
-
-    internal static Quantity Water { get; } = new(nameof(Water), SKColors.Aqua);
-    internal static Quantity Hydrogen { get; } = new(nameof(Hydrogen), SKColors.Blue);
-    internal static Quantity Oxygen { get; } = new(nameof(Oxygen), SKColors.White);
+    public required string Name { get; init; }
+    public required SKColor Color { get; init; }
 }

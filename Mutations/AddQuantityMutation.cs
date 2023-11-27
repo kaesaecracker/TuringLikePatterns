@@ -1,10 +1,12 @@
+using System.Diagnostics;
+
 namespace TuringLikePatterns.Mutations;
 
 internal sealed class AddQuantityMutation : PooledGameStateMutation<AddQuantityMutation>
 {
     private float _amount;
     private GamePosition _position;
-    private Quantity _quantityToChange;
+    private Quantity? _quantityToChange;
 
     public static AddQuantityMutation Get(GamePosition position, Quantity quantityToChange, float amount)
     {
@@ -17,6 +19,7 @@ internal sealed class AddQuantityMutation : PooledGameStateMutation<AddQuantityM
 
     protected override void InnerApply(GameState gameState)
     {
+        Debug.Assert(_quantityToChange != null);
         gameState.Tiles[_position][_quantityToChange] += _amount;
     }
 }
