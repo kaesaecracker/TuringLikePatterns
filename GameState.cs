@@ -20,7 +20,7 @@ internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, Ga
         TopLeft = new GamePosition(long.MaxValue, long.MaxValue);
         BottomRight = new GamePosition(long.MinValue, long.MinValue);
 
-        foreach (var (pos, _) in _raw)
+        foreach (var pos in _raw.Keys)
             RefreshBounds(pos);
     }
 
@@ -49,7 +49,7 @@ internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, Ga
             if (_raw.TryGetValue(pos, out var result))
                 return result;
 
-            var newTile = new GameTile(new Dictionary<Quantity, float>());
+            var newTile = new GameTile();
             this[pos] = newTile;
             return newTile;
         }
@@ -80,14 +80,18 @@ internal readonly record struct GamePosition(long X, long Y)
     public override string ToString() => $"({X} | {Y})";
 }
 
-internal sealed class GameTile(Dictionary<Quantity, float> raw) : IEnumerable<KeyValuePair<Quantity, float>>
+internal sealed class GameTile : IEnumerable<KeyValuePair<Quantity, float>>
 {
+    private readonly Dictionary<Quantity, float> _raw = new();
+
     public float this[Quantity q]
     {
-        get => raw.GetValueOrDefault(q, 0f);
-        set => raw[q] = value;
+        get => _raw.GetValueOrDefault(q, 0f);
+        set => _raw[q] = value;
     }
 
-    public IEnumerator<KeyValuePair<Quantity, float>> GetEnumerator() => raw.GetEnumerator();
+    public IEnumerator<KeyValuePair<Quantity, float>> GetEnumerator() => _raw.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    internal Quantity GetHighestQuantity() => _raw.MaxBy(pair => pair.Value).Key;
 }

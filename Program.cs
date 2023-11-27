@@ -2,6 +2,7 @@ using GLib;
 using TuringLikePatterns.Gui;
 using TuringLikePatterns.Mutations;
 using Application = Gtk.Application;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TuringLikePatterns;
 
@@ -12,11 +13,16 @@ public static class Program
     {
         Application.Init();
 
-        var gsm = GetDefaultInitialState();
-        var win = new MainWindow(gsm);
-        win.Show();
+        var services = new ServiceCollection();
+        services.AddSingleton(GetDefaultInitialState());
+        services.AddSingleton<MainWindow>();
+        services.AddSingleton<GtkApplication>();
 
-        var app = new Application("com.example.turing_like_patterns", ApplicationFlags.None);
+        var serviceProvider = services.BuildServiceProvider();
+
+        var win = serviceProvider.GetRequiredService<MainWindow>();
+        win.Show();
+        var app = serviceProvider.GetRequiredService<GtkApplication>();
         app.Register(Cancellable.Current);
         app.AddWindow(win);
 
@@ -29,11 +35,11 @@ public static class Program
         {
             {
                 new GamePosition(10, 10),
-                new GameTile(new Dictionary<Quantity, float> { { Quantity.Oxygen, 1000 } })
+                new GameTile { [Quantity.Oxygen] = 100f }
             },
             {
                 new GamePosition(25, 30),
-                new GameTile(new Dictionary<Quantity, float> { { Quantity.Hydrogen, 1000 } })
+                new GameTile { [Quantity.Hydrogen] = 1000f }
             },
         });
         var initialState = new GameState(0, tiles);

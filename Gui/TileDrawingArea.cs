@@ -47,11 +47,20 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     private static void DrawTiles(GameState state, SKCanvas canvas)
     {
+        using var quantityColorPaint = new SKPaint();
+        quantityColorPaint.Style = SKPaintStyle.Fill;
+
+        foreach (var (position, tile) in state.Tiles)
+        {
+            var maxQuantity = tile.GetHighestQuantity();
+            quantityColorPaint.Color = maxQuantity.Color;
+            canvas.DrawRect(position.X, position.Y, 1f, 1f, quantityColorPaint);
+        }
+
         using var tileMarkerPaint = new SKPaint();
         tileMarkerPaint.Color = SKColors.Gray;
         tileMarkerPaint.Style = SKPaintStyle.Stroke;
-
-        foreach (var (pos, _) in state.Tiles)
-            canvas.DrawRect(pos.X, pos.Y, 0.9f, 0.9f, tileMarkerPaint);
+        foreach (var (position, _) in state.Tiles)
+            canvas.DrawRect(position.X, position.Y, 1f, 1f, tileMarkerPaint);
     }
 }
