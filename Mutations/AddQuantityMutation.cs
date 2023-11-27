@@ -19,7 +19,7 @@ internal sealed class AddQuantityMutation : PooledGameStateMutation<AddQuantityM
 
     protected override void InnerApply(GameState gameState)
     {
-        Debug.Assert(_quantityToChange != null);
+        Trace.Assert(_quantityToChange != null);
         gameState.Tiles[_position][_quantityToChange] += _amount;
     }
 }

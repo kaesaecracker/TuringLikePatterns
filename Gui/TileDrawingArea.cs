@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Gdk;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.Gtk;
@@ -46,14 +47,19 @@ internal sealed class TileDrawingArea : SKDrawingArea
         if (_lastKnownState == null)
             return;
 
-        ApplyScale(_lastKnownState.Tiles.TopLeft, _lastKnownState.Tiles.BottomRight, e.Info.Size, canvas);
+        ApplyScale(e.Info.Size, canvas);
         DrawTiles(_lastKnownState, canvas, _quantityPaints);
     }
 
-    private static void ApplyScale(GamePosition topLeft, GamePosition bottomRight, SKSizeI canvasSize, SKCanvas canvas)
+    private void ApplyScale(SKSizeI canvasSize, SKCanvas canvas)
     {
-        var logicalWidth = bottomRight.X - topLeft.X + 10;
-        var logicalHeight = bottomRight.Y - topLeft.Y + 10;
+        Trace.Assert(_lastKnownState != null);
+        var topLeft = _lastKnownState.Tiles.TopLeft;
+        var bottomRight = _lastKnownState.Tiles.BottomRight;
+
+        var logicalWidth = bottomRight.X - topLeft.X + 1;
+        var logicalHeight = bottomRight.Y - topLeft.Y + 1;
+
         var sx = (float)canvasSize.Width / logicalWidth;
         var sy = (float)canvasSize.Height / logicalHeight;
         var s = Math.Min(sx, sy); // keep ratio
