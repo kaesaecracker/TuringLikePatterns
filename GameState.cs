@@ -8,7 +8,7 @@ internal sealed record class GameState(
     public long TickCount { get; set; } = TickCount;
 }
 
-internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, GameTile>>
+internal sealed class GameStateTiles
 {
     private readonly Dictionary<GamePosition, GameTile> _raw;
 
@@ -61,10 +61,7 @@ internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, Ga
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => _raw.GetEnumerator();
-
-    IEnumerator<KeyValuePair<GamePosition, GameTile>> IEnumerable<KeyValuePair<GamePosition, GameTile>>.
-        GetEnumerator() => _raw.GetEnumerator();
+    public IEnumerator<KeyValuePair<GamePosition, GameTile>> GetEnumerator() => _raw.GetEnumerator();
 }
 
 internal readonly record struct GamePosition(long X, long Y)
@@ -80,7 +77,7 @@ internal readonly record struct GamePosition(long X, long Y)
     public override string ToString() => $"({X} | {Y})";
 }
 
-internal sealed class GameTile : IEnumerable<KeyValuePair<Quantity, float>>
+internal sealed class GameTile
 {
     private readonly Dictionary<Quantity, float> _raw = new();
 
@@ -91,7 +88,6 @@ internal sealed class GameTile : IEnumerable<KeyValuePair<Quantity, float>>
     }
 
     public IEnumerator<KeyValuePair<Quantity, float>> GetEnumerator() => _raw.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     internal Quantity GetHighestQuantity() => _raw.MaxBy(pair => pair.Value).Key;
 }

@@ -7,6 +7,7 @@ internal sealed class MainWindow : Window
 {
     private readonly GameStateManager _gameStateManager;
     private readonly Grid _grid;
+    private readonly TileDrawingArea _drawingArea;
 
     public MainWindow(GameStateManager gameStateManager)
         : this(gameStateManager, new Builder("MainWindow.glade"))
@@ -22,8 +23,8 @@ internal sealed class MainWindow : Window
         DeleteEvent += (o, args) => Application.Quit();
         Name = "Turing-like Patterns";
 
-        var drawingArea = new TileDrawingArea(_gameStateManager);
-        drawingArea.Show();
+        _drawingArea = new TileDrawingArea(_gameStateManager);
+        _drawingArea.Show();
 
         _grid = new Grid { ColumnSpacing = 5, RowSpacing = 5, WidthRequest = 150 };
         var currentRow = 0;
@@ -32,7 +33,7 @@ internal sealed class MainWindow : Window
         _grid.Show();
 
         var child = new HBox();
-        child.PackStart(drawingArea, true, true, 0);
+        child.PackStart(_drawingArea, true, true, 0);
         child.PackEnd(_grid, false, false, 0);
         child.Show();
         Child = child;
@@ -77,5 +78,14 @@ internal sealed class MainWindow : Window
         _gameStateManager.GameTickPassed += (sender, args) => { valueLabel.Text = onChange(args.NewGameState); };
         valueLabel.Show();
         _grid.Attach(valueLabel, 1, top, 1, 1);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (!disposing)
+            return;
+        _grid.Dispose();
+        _drawingArea.Dispose();
     }
 }
