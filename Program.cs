@@ -34,12 +34,12 @@ public static class Program
         var tiles = new GameStateTiles(new Dictionary<GamePosition, GameTile>
         {
             {
-                new GamePosition(10, 10),
+                new GamePosition(5, 5),
                 new GameTile { [Quantity.Oxygen] = 100f }
             },
             {
-                new GamePosition(25, 30),
-                new GameTile { [Quantity.Hydrogen] = 1000f }
+                new GamePosition(10, 10),
+                new GameTile { [Quantity.Hydrogen] = 10000f }
             },
         });
         var initialState = new GameState(0, tiles);

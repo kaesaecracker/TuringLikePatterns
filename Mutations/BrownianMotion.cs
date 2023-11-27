@@ -10,7 +10,7 @@ internal sealed class BrownianMotionMutationGenerator(float threshold, float por
             if (amount <= threshold)
                 continue;
 
-            var amountToSpread = amount / portionToSpread;
+            var amountToSpread = amount * portionToSpread;
 
             yield return AddQuantityMutation.Get(position, quantity, -amountToSpread);
 

@@ -34,7 +34,14 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     private void OnButtonPressEvent(object o, ButtonPressEventArgs args)
     {
-        Console.WriteLine($"clicked on position ({args.Event.X}, {args.Event.Y})");
+        var clickedPoint = new SKPoint((float)args.Event.X, (float)args.Event.Y);
+        var (translate, scale) = GetScalingInfo(CanvasSize.ToSizeI());
+        clickedPoint = new SKPoint(clickedPoint.X / scale, clickedPoint.Y / scale);
+        clickedPoint = new SKPoint(clickedPoint.X - translate.X, clickedPoint.Y - translate.Y);
+        var gamePosition = new GamePosition((long)Math.Round(clickedPoint.X), (long)Math.Round(clickedPoint.Y));
+
+        Trace.Assert(_lastKnownState != null);
+        Console.WriteLine($"Clicked {gamePosition} with Tile {_lastKnownState.Tiles[gamePosition]}");
     }
 
     protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
@@ -54,6 +61,14 @@ internal sealed class TileDrawingArea : SKDrawingArea
     private void ApplyScale(SKSizeI canvasSize, SKCanvas canvas)
     {
         Trace.Assert(_lastKnownState != null);
+        var (translate, scale) = GetScalingInfo(canvasSize);
+        canvas.Scale(scale);
+        canvas.Translate(translate);
+    }
+
+    private (SKPoint Translate, float Scale) GetScalingInfo(SKSizeI canvasSize)
+    {
+        Trace.Assert(_lastKnownState != null);
         var topLeft = _lastKnownState.Tiles.TopLeft;
         var bottomRight = _lastKnownState.Tiles.BottomRight;
 
@@ -62,9 +77,8 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
         var sx = (float)canvasSize.Width / logicalWidth;
         var sy = (float)canvasSize.Height / logicalHeight;
-        var s = Math.Min(sx, sy); // keep ratio
-        canvas.Scale(s);
-        canvas.Translate(-topLeft.X, -topLeft.Y);
+        var s = Math.Min(sx, sy);
+        return (new SKPoint(-topLeft.X, -topLeft.Y), s);
     }
 
     private static void DrawTiles(
@@ -78,7 +92,8 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
         foreach (var (position, tile) in state.Tiles)
         {
-            canvas.DrawRect(position.X, position.Y, 1f, 1f, quantityPaints[tile.GetHighestQuantity()]);
+            var highestQuantity = tile.GetHighestQuantity();
+            canvas.DrawRect(position.X, position.Y, 1f, 1f, quantityPaints[highestQuantity]);
             canvas.DrawRect(position.X, position.Y, 1f, 1f, tileMarkerPaint);
         }
     }

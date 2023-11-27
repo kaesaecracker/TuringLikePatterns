@@ -90,4 +90,7 @@ internal sealed class GameTile
     public IEnumerator<KeyValuePair<Quantity, float>> GetEnumerator() => _raw.GetEnumerator();
 
     internal Quantity GetHighestQuantity() => _raw.MaxBy(pair => pair.Value).Key;
+
+    public override string ToString() =>
+        "{" + string.Join(",", _raw.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
 }
