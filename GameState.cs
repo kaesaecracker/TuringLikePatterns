@@ -1,15 +1,14 @@
-using System.Collections;
-using System.Linq;
-using Microsoft.Extensions.ObjectPool;
-
 namespace TuringLikePatterns;
 
-internal readonly record struct GameState(
+internal sealed record class GameState(
     long TickCount,
     GameStateTiles Tiles
-);
+)
+{
+    public long TickCount { get; set; } = TickCount;
+}
 
-internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, GameTile>>, IDisposable
+internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, GameTile>>
 {
     private readonly AutoPoolingDictionary<GamePosition, GameTile> _raw;
 
@@ -18,48 +17,56 @@ internal sealed class GameStateTiles : IEnumerable<KeyValuePair<GamePosition, Ga
         ArgumentNullException.ThrowIfNull(raw);
         _raw = raw;
 
-        var min = new GamePosition(long.MaxValue, long.MaxValue);
-        var max = new GamePosition(long.MinValue, long.MinValue);
+        TopLeft = new GamePosition(long.MaxValue, long.MaxValue);
+        BottomRight = new GamePosition(long.MinValue, long.MinValue);
 
         foreach (var (pos, _) in _raw)
         {
-            if (pos.X < min.X)
-                min = min with { X = pos.X };
-            if (pos.X > max.X)
-                max = max with { X = pos.X };
-            if (pos.Y < min.Y)
-                min = min with { Y = pos.Y };
-            if (pos.Y > max.Y)
-                max = max with { Y = pos.Y };
+            RefreshBounds(pos);
         }
-
-        TopLeft = min;
-        BottomRight = max;
     }
 
-    public GamePosition TopLeft { get; }
-    public GamePosition BottomRight { get; }
+    private void RefreshBounds(GamePosition pos)
+    {
+        if (pos.X < TopLeft.X)
+            TopLeft = TopLeft with { X = pos.X };
+        if (pos.X > BottomRight.X)
+            BottomRight = BottomRight with { X = pos.X };
+        if (pos.Y < TopLeft.Y)
+            TopLeft = TopLeft with { Y = pos.Y };
+        if (pos.Y > BottomRight.Y)
+            BottomRight = BottomRight with { Y = pos.Y };
+    }
+
+    public GamePosition TopLeft { get; private set; }
+
+    public GamePosition BottomRight { get; private set; }
 
     public int NonEmptyCount => _raw.Count;
 
-    public GameTile this[GamePosition pos] => _raw.GetValueOrDefault(pos) ?? new GameTile();
+    public GameTile this[GamePosition pos]
+    {
+        get
+        {
+            if (_raw.TryGetValue(pos, out var result))
+                return result;
+
+            var newTile = new GameTile(new AutoPoolingDictionary<Quantity, float>());
+            this[pos] = newTile;
+            return newTile;
+        }
+
+        private set
+        {
+            _raw[pos] = value;
+            RefreshBounds(pos);
+        }
+    }
 
     IEnumerator IEnumerable.GetEnumerator() => _raw.GetEnumerator();
 
     IEnumerator<KeyValuePair<GamePosition, GameTile>> IEnumerable<KeyValuePair<GamePosition, GameTile>>.
         GetEnumerator() => _raw.GetEnumerator();
-
-    public GameStateTiles WithChangedTile(GamePosition position, GameTile newTile)
-    {
-        var newTiles = AutoPoolingDictionary<GamePosition, GameTile>.GetFromPool(_raw);
-        newTiles[position] = newTile;
-        return new GameStateTiles(newTiles);
-    }
-
-    public void Dispose()
-    {
-        _raw.Dispose();
-    }
 }
 
 internal readonly record struct GamePosition(long X, long Y)
@@ -75,19 +82,14 @@ internal readonly record struct GamePosition(long X, long Y)
     public override string ToString() => $"({X} | {Y})";
 }
 
-internal sealed class GameTile(AutoPoolingDictionary<Quantity, float>? raw = null) : IDisposable
+internal sealed class GameTile(AutoPoolingDictionary<Quantity, float> raw) : IEnumerable<KeyValuePair<Quantity, float>>
 {
-    public float this[Quantity q] => raw?.GetValueOrDefault(q, 0f) ?? 0f;
-
-    public GameTile WithChangedQuantity(Quantity quantity, float amount)
+    public float this[Quantity q]
     {
-        var newDict = AutoPoolingDictionary<Quantity, float>.GetFromPool(raw);
-        newDict[quantity] = this[quantity] + amount;
-        return new GameTile(newDict);
+        get => raw.GetValueOrDefault(q, 0f);
+        set => raw[q] = value;
     }
 
-    public IEnumerable<KeyValuePair<Quantity, float>> Quantities =>
-        raw ?? Enumerable.Empty<KeyValuePair<Quantity, float>>();
-
-    public void Dispose() => raw?.Dispose();
+    public IEnumerator<KeyValuePair<Quantity, float>> GetEnumerator() => raw.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

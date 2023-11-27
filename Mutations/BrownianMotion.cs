@@ -5,7 +5,7 @@ internal sealed class BrownianMotionMutationGenerator(float threshold, float por
     public IEnumerable<IGameStateMutation> GetMutations(GameState state)
     {
         foreach (var (position, tile) in state.Tiles)
-        foreach (var (quantity, amount) in tile.Quantities)
+        foreach (var (quantity, amount) in tile)
         {
             if (amount <= threshold)
                 continue;

@@ -4,7 +4,7 @@ namespace TuringLikePatterns;
 
 internal interface IGameStateMutation
 {
-    public GameState Apply(GameState gameState);
+    public void Apply(GameState gameState);
 }
 
 internal abstract class PooledGameStateMutation<T> : IGameStateMutation, IDisposable, IResettable
@@ -13,19 +13,17 @@ internal abstract class PooledGameStateMutation<T> : IGameStateMutation, IDispos
     private static readonly ObjectPool<T> Pool = ObjectPool.Create<T>();
     private bool _shouldReturn;
 
-    public virtual GameState Apply(GameState gameState)
+    public void Apply(GameState gameState)
     {
         if (!_shouldReturn)
             throw new InvalidOperationException(
                 $"{nameof(PooledGameStateMutation<T>)} not acquired via GetFromPool");
-
-        return gameState;
+        InnerApply(gameState);
     }
 
-    public virtual bool TryReset()
-    {
-        return true;
-    }
+    protected abstract void InnerApply(GameState gameState);
+
+    public bool TryReset() => true;
 
     protected static T GetFromPool()
     {

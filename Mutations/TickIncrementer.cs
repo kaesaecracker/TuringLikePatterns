@@ -12,8 +12,8 @@ internal sealed class TickIncrementerMutationGenerator : IMutationGenerator
 
 internal sealed class TickIncrementerMutation : IGameStateMutation
 {
-    public GameState Apply(GameState gameState)
+    public void Apply(GameState gameState)
     {
-        return gameState with { TickCount = gameState.TickCount + 1 };
+        gameState.TickCount++;
     }
 }

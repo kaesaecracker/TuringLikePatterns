@@ -30,7 +30,7 @@ internal sealed class TileDrawingArea : SKDrawingArea
         if (_lastKnownState == null)
             return;
 
-        var state = _lastKnownState.Value;
+        var state = _lastKnownState;
         ApplyScale(state.Tiles.TopLeft, state.Tiles.BottomRight, info.Size, canvas);
         DrawTiles(state, canvas);
         DrawDebugSquare(canvas);

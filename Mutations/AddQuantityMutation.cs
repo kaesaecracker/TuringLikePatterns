@@ -15,12 +15,8 @@ internal sealed class AddQuantityMutation : PooledGameStateMutation<AddQuantityM
         return result;
     }
 
-    public override GameState Apply(GameState gameState)
+    protected override void InnerApply(GameState gameState)
     {
-        gameState = base.Apply(gameState);
-
-        var newTile = gameState.Tiles[_position].WithChangedQuantity(_quantityToChange, _amount);
-        var newTiles = gameState.Tiles.WithChangedTile(_position, newTile);
-        return gameState with { Tiles = newTiles };
+        gameState.Tiles[_position][_quantityToChange] += _amount;
     }
 }

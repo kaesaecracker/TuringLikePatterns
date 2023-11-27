@@ -1,6 +1,8 @@
+using System.Collections.Immutable;
+
 namespace TuringLikePatterns;
 
-internal sealed record class GameTickPassedEventArgs(GameState OldGameState, GameState NewGameState);
+internal sealed record class GameTickPassedEventArgs(GameState NewGameState);
 
 internal sealed class GameStateManager(GameState state, IList<IMutationGenerator> mutationGenerators)
 {
@@ -8,14 +10,13 @@ internal sealed class GameStateManager(GameState state, IList<IMutationGenerator
 
     internal void Tick()
     {
-        var newState = state;
+        var mutations = mutationGenerators
+            .SelectMany(mg => mg.GetMutations(state))
+            .ToImmutableList();
+        foreach (var mutation in mutations)
+            mutation.Apply(state);
 
-        foreach (var g in mutationGenerators)
-        foreach (var mutation in g.GetMutations(state))
-            newState = mutation.Apply(newState);
-
-        GameTickPassed?.Invoke(null, new GameTickPassedEventArgs(state, newState));
-        state = newState;
+        GameTickPassed?.Invoke(null, new GameTickPassedEventArgs(state));
     }
 }
 
