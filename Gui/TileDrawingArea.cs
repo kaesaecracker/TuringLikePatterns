@@ -7,7 +7,9 @@ namespace TuringLikePatterns.Gui;
 
 internal sealed class TileDrawingArea : SKDrawingArea
 {
-    private GameState? _lastKnownState;
+    private GamePosition _lastMousePosition;
+
+    private readonly GameStateManager _stateManager;
 
     private readonly Dictionary<Quantity, SKPaint> _quantityPaints = Quantity.All.ToDictionary(
         quantity => quantity,
@@ -21,27 +23,58 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     public TileDrawingArea(GameStateManager stateManager)
     {
+        _stateManager = stateManager;
         stateManager.GameTickPassed += StateManagerGameTickPassed;
-        ButtonPressEvent += OnButtonPressEvent;
+        ButtonPressEvent += OnButtonPress;
+        MotionNotifyEvent += OnMotion;
         AddEvents((int)EventMask.ButtonPressMask);
+        AddEvents((int)EventMask.PointerMotionMask);
     }
 
-    private void StateManagerGameTickPassed(object? sender, GameTickPassedEventArgs e)
+    internal event EventHandler<HoverTileChangeEventArgs>? HoverTileChange;
+
+    internal event EventHandler<TileClickEventArgs>? TileLeftClick;
+
+    internal event EventHandler<TileClickEventArgs>? TileRightClick;
+
+    private void OnMotion(object o, MotionNotifyEventArgs args)
     {
-        _lastKnownState = e.NewGameState;
+        var gamePosition = CanvasPointToGamePosition(args.Event.X, args.Event.Y);
+        if (gamePosition == _lastMousePosition)
+            return;
+        _lastMousePosition = gamePosition;
+        HoverTileChange?.Invoke(this, new HoverTileChangeEventArgs(gamePosition));
+    }
+
+    private void StateManagerGameTickPassed(object? sender, EventArgs e)
+    {
         QueueDraw();
     }
 
-    private void OnButtonPressEvent(object o, ButtonPressEventArgs args)
+    private void OnButtonPress(object o, ButtonPressEventArgs args)
     {
-        var clickedPoint = new SKPoint((float)args.Event.X, (float)args.Event.Y);
-        var (translate, scale) = GetScalingInfo(CanvasSize.ToSizeI());
-        clickedPoint = new SKPoint(clickedPoint.X / scale, clickedPoint.Y / scale);
-        clickedPoint = new SKPoint(clickedPoint.X - translate.X, clickedPoint.Y - translate.Y);
-        var gamePosition = new GamePosition((long)Math.Round(clickedPoint.X), (long)Math.Round(clickedPoint.Y));
+        var gamePosition = CanvasPointToGamePosition(args.Event.X, args.Event.Y);
+        switch (args.Event.Button)
+        {
+            case 1:
+                TileLeftClick?.Invoke(this, new TileClickEventArgs(gamePosition));
+                break;
+            case 3:
+                TileRightClick?.Invoke(this, new TileClickEventArgs(gamePosition));
+                break;
+            default:
+                Console.WriteLine($"unhandled mouse button {args.Event.Button}");
+                break;
+        }
+    }
 
-        Trace.Assert(_lastKnownState != null);
-        Console.WriteLine($"Clicked {gamePosition} with Tile {_lastKnownState.Tiles[gamePosition]}");
+    private GamePosition CanvasPointToGamePosition(double x, double y)
+    {
+        var (translate, scale) = GetScalingInfo(CanvasSize.ToSizeI());
+        return new GamePosition(
+            (long)(x / scale - translate.X),
+            (long)(y / scale - translate.Y)
+        );
     }
 
     protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
@@ -51,16 +84,13 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
         using var autoRestore = new SKAutoCanvasRestore(canvas);
         canvas.Clear(SKColors.Black);
-        if (_lastKnownState == null)
-            return;
 
         ApplyScale(e.Info.Size, canvas);
-        DrawTiles(_lastKnownState, canvas, _quantityPaints);
+        DrawTiles(_stateManager.State, canvas, _quantityPaints);
     }
 
     private void ApplyScale(SKSizeI canvasSize, SKCanvas canvas)
     {
-        Trace.Assert(_lastKnownState != null);
         var (translate, scale) = GetScalingInfo(canvasSize);
         canvas.Scale(scale);
         canvas.Translate(translate);
@@ -68,9 +98,8 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     private (SKPoint Translate, float Scale) GetScalingInfo(SKSizeI canvasSize)
     {
-        Trace.Assert(_lastKnownState != null);
-        var topLeft = _lastKnownState.Tiles.TopLeft;
-        var bottomRight = _lastKnownState.Tiles.BottomRight;
+        var topLeft = _stateManager.State.Tiles.TopLeft;
+        var bottomRight = _stateManager.State.Tiles.BottomRight;
 
         var logicalWidth = bottomRight.X - topLeft.X + 1;
         var logicalHeight = bottomRight.Y - topLeft.Y + 1;
@@ -93,7 +122,8 @@ internal sealed class TileDrawingArea : SKDrawingArea
         foreach (var (position, tile) in state.Tiles)
         {
             var highestQuantity = tile.GetHighestQuantity();
-            canvas.DrawRect(position.X, position.Y, 1f, 1f, quantityPaints[highestQuantity]);
+            if (highestQuantity != null && tile[highestQuantity] > 0)
+                canvas.DrawRect(position.X, position.Y, 1f, 1f, quantityPaints[highestQuantity]);
             canvas.DrawRect(position.X, position.Y, 1f, 1f, tileMarkerPaint);
         }
     }
@@ -109,3 +139,7 @@ internal sealed class TileDrawingArea : SKDrawingArea
         _quantityPaints.Clear();
     }
 }
+
+internal sealed record class TileClickEventArgs(GamePosition Position);
+
+internal sealed record class HoverTileChangeEventArgs(GamePosition Position);

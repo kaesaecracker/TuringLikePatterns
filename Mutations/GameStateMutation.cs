@@ -1,16 +1,21 @@
 using Microsoft.Extensions.ObjectPool;
 
-namespace TuringLikePatterns;
+namespace TuringLikePatterns.Mutations;
 
-internal interface IGameStateMutation
+internal interface IGameStateMutation : IDisposable
 {
     public void Apply(GameState gameState);
+
+    void IDisposable.Dispose()
+    {
+    }
 }
 
-internal abstract class PooledGameStateMutation<T> : IGameStateMutation, IDisposable, IResettable
+internal abstract class PooledGameStateMutation<T> : IGameStateMutation, IResettable
     where T : PooledGameStateMutation<T>, new()
 {
-    private static readonly ObjectPool<T> Pool = ObjectPool.Create<T>();
+    private static readonly ObjectPool<T> Pool =
+        new DefaultObjectPool<T>(new DefaultPooledObjectPolicy<T>(), int.MaxValue);
     private bool _shouldReturn;
 
     public void Apply(GameState gameState)

@@ -17,6 +17,7 @@ public static class Program
         services.AddSingleton(GetDefaultInitialState());
         services.AddSingleton<MainWindow>();
         services.AddSingleton<GtkApplication>();
+        services.AddTransient<TileDrawingArea>();
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -35,10 +36,10 @@ public static class Program
         {
             {
                 new GamePosition(5, 5),
-                new GameTile { [Quantity.Oxygen] = 100f }
+                new GameTile { [Quantity.Oxygen] = 1000f }
             },
             {
-                new GamePosition(10, 10),
+                new GamePosition(9, 8),
                 new GameTile { [Quantity.Hydrogen] = 10000f }
             },
         });
@@ -48,6 +49,7 @@ public static class Program
         {
             new TickIncrementerMutationGenerator(),
             new BrownianMotionMutationGenerator(1f, 0.01f),
+            new MakeWaterMutationGenerator(1f, 0.333f),
         };
 
         return new GameStateManager(initialState, mutationGenerators);

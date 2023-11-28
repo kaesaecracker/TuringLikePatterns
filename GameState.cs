@@ -1,3 +1,4 @@
+
 namespace TuringLikePatterns;
 
 internal sealed record class GameState(
@@ -79,18 +80,16 @@ internal readonly record struct GamePosition(long X, long Y)
 
 internal sealed class GameTile
 {
-    private readonly Dictionary<Quantity, float> _raw = new();
+    public Dictionary<Quantity, float> Raw { get; } = new();
 
     public float this[Quantity q]
     {
-        get => _raw.GetValueOrDefault(q, 0f);
-        set => _raw[q] = value;
+        get => Raw.GetValueOrDefault(q, 0f);
+        set => Raw[q] = value;
     }
 
-    public IEnumerator<KeyValuePair<Quantity, float>> GetEnumerator() => _raw.GetEnumerator();
+    internal Quantity? GetHighestQuantity() => Raw.Count != 0 ? Raw.MaxBy(pair => pair.Value).Key : null;
 
-    internal Quantity GetHighestQuantity() => _raw.MaxBy(pair => pair.Value).Key;
-
-    public override string ToString() =>
-        "{" + string.Join(",", _raw.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
+    public string ToDebugString() =>
+        $"{{{string.Join(",", Raw.Select(kv => kv.Key + "=" + kv.Value).ToArray())}}}";
 }
