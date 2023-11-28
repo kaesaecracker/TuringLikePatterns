@@ -17,7 +17,9 @@ public static class Program
         services.AddSingleton(GetDefaultInitialState());
         services.AddSingleton<MainWindow>();
         services.AddSingleton<GtkApplication>();
-        services.AddTransient<TileDrawingArea>();
+        services.AddSingleton<TileDrawingArea>();
+        services.AddSingleton<StatisticsPage>();
+        services.AddSingleton<ActionsPage>();
 
         var serviceProvider = services.BuildServiceProvider();
 
