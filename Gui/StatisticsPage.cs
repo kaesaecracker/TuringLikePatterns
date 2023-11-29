@@ -4,68 +4,79 @@ namespace TuringLikePatterns.Gui;
 
 internal sealed class StatisticsPage : Grid
 {
-    private int _currentRow;
-
     public StatisticsPage(GameStateManager gameStateManager, TileDrawingArea drawArea)
     {
+        _gameStateManager = gameStateManager;
+
         ColumnSpacing = 10;
         RowSpacing = 5;
 
-        AttachGlobalStatistics(gameStateManager);
+        AttachGlobalStatistics();
         Attach(new Label(""), 0, _currentRow++, 2, 1);
-        AttachCursorStatistics(gameStateManager, drawArea);
+        AttachCursorStatistics(drawArea);
+
+        _gameStateManager.GameTickPassed += OnGameStateManagerTickPassed;
+        drawArea.HoverTileChange += OnDrawAreaHoverTileChange;
     }
 
-    private void AttachGlobalStatistics(GameStateManager gameStateManager)
-    {
-        Dictionary<string, (Func<GameState, string> TextFunc, Label Label)> statistics = new()
-        {
-            ["Ticks"] = (s => s.TickCount.ToString(CultureInfo.CurrentCulture), new Label()),
-            ["Tiles live"] = (s => s.Tiles.NonEmptyCount.ToString(CultureInfo.CurrentCulture), new Label()),
-            ["Top left"] = (s => s.Tiles.TopLeft.ToString(), new Label()),
-            ["Bottom right"] = (s => s.Tiles.BottomRight.ToString(), new Label()),
-        };
+    private readonly GameStateManager _gameStateManager;
+    private int _currentRow;
+    private readonly Label _positionLabel = new("<Position>");
 
-        foreach (var (name, (textFunc, label)) in statistics)
+    private sealed record class Statistic(string Name, Func<GameState, string> TextFunc, Label Label);
+
+    private sealed record class CursorStatistic(Quantity Quantity, Label Label);
+
+    private readonly List<Statistic> _statistics =
+    [
+        new Statistic("Ticks", s => s.TickCount.ToString(CultureInfo.CurrentCulture), new Label()),
+        new Statistic("Tiles live", s => s.Tiles.NonEmptyCount.ToString(CultureInfo.CurrentCulture), new Label()),
+        new Statistic("Top left", s => s.Tiles.TopLeft.ToString(), new Label()),
+        new Statistic("Bottom right", s => s.Tiles.BottomRight.ToString(), new Label()),
+    ];
+
+    private readonly List<CursorStatistic> _cursorStatistics = Quantity.All
+        .Select(q => new CursorStatistic(q, new Label()))
+        .ToList();
+
+    private void OnDrawAreaHoverTileChange(object? _, HoverTileChangeEventArgs args)
+    {
+        _positionLabel.Text = args.Position.ToString();
+        foreach (var (quantity, label) in _cursorStatistics)
+        {
+            var amount = (long)_gameStateManager.State.Tiles[args.Position][quantity];
+            label.Text = amount.ToString(CultureInfo.CurrentCulture);
+        }
+    }
+
+    private void OnGameStateManagerTickPassed(object? o, EventArgs eventArgs)
+    {
+        foreach (var (_, textFunc, label) in _statistics)
+            label.Text = textFunc(_gameStateManager.State);
+    }
+
+    private void AttachGlobalStatistics()
+    {
+        foreach (var (name, textFunc, label) in _statistics)
         {
             Attach(new Label(name), 0, _currentRow, 1, 1);
 
-            label.Text = textFunc(gameStateManager.State);
+            label.Text = textFunc(_gameStateManager.State);
             Attach(label, 1, _currentRow++, 1, 1);
         }
-
-        gameStateManager.GameTickPassed += (_, _) =>
-        {
-            foreach (var (textFunc, label) in statistics.Values)
-                label.Text = textFunc(gameStateManager.State);
-        };
     }
 
-    private void AttachCursorStatistics(GameStateManager gameStateManager, TileDrawingArea drawArea)
+    private void AttachCursorStatistics(TileDrawingArea drawArea)
     {
         Attach(new Label("=== Cursor ==="), 0, _currentRow++, 2, 1);
 
         Attach(new Label("Position"), 0, _currentRow, 1, 1);
-        var positionLabel = new Label("<Position>");
-        Attach(positionLabel, 1, _currentRow++, 1, 1);
+        Attach(_positionLabel, 1, _currentRow++, 1, 1);
 
-        var labelDict = new Dictionary<Quantity, Label>(Quantity.All.Count);
-        foreach (var quantity in Quantity.All)
+        foreach (var (quantity, label) in _cursorStatistics)
         {
             Attach(new Label(quantity.Name), 0, _currentRow, 1, 1);
-            var label = new Label($"<{quantity.Name}>");
-            labelDict[quantity] = label;
             Attach(label, 1, _currentRow++, 1, 1);
         }
-
-        drawArea.HoverTileChange += (_, args) =>
-        {
-            positionLabel.Text = args.Position.ToString();
-            foreach (var (quantity, label) in labelDict)
-            {
-                var amount = (long)gameStateManager.State.Tiles[args.Position][quantity];
-                label.Text = amount.ToString(CultureInfo.CurrentCulture);
-            }
-        };
     }
 }

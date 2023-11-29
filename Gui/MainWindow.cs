@@ -7,8 +7,7 @@ internal sealed class MainWindow : Window
 {
     private readonly TileDrawingArea _drawingArea;
 
-    public MainWindow(GameStateManager gameStateManager, TileDrawingArea drawingArea, StatisticsPage statisticsPage,
-        ActionsPage actionsPage)
+    public MainWindow(TileDrawingArea drawingArea, StatisticsPage statisticsPage, ActionsPage actionsPage)
         : base("Turing-like Patterns")
     {
         _drawingArea = drawingArea;
