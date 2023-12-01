@@ -1,59 +1,50 @@
 using GLib;
+using Microsoft.Extensions.DependencyInjection;
+using TuringLikePatterns;
 using TuringLikePatterns.Gui;
 using TuringLikePatterns.Mutations;
-using Application = Gtk.Application;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace TuringLikePatterns;
+var serviceProvider = ConfigureServices();
+Gtk.Application.Init();
 
-public static class Program
+var app = serviceProvider.GetRequiredService<GtkApplication>();
+app.Register(Cancellable.Current);
+
+var window = serviceProvider.GetRequiredService<MainWindow>();
+app.AddWindow(window);
+window.Show();
+
+Gtk.Application.Run();
+return;
+
+static ServiceProvider ConfigureServices()
 {
-    [STAThread]
-    public static void Main()
+    var services = new ServiceCollection();
+    services.AddSingleton(GetDefaultInitialState);
+    services.AddSingleton<MainWindow>();
+    services.AddSingleton<GtkApplication>();
+    services.AddSingleton<TileDrawingArea>();
+    services.AddSingleton<StatisticsPage>();
+    services.AddSingleton<ActionsPage>();
+    services.AddSingleton<IMutationGenerator, TickIncrementerMutationGenerator>();
+    services.AddSingleton<IMutationGenerator>(sp =>
+        new BrownianMotionMutationGenerator(1f, 0.01f));
+    services.AddSingleton<IMutationGenerator>(sp => new MakeWaterMutationGenerator(1f, 0.333f));
+    return services.BuildServiceProvider();
+}
+
+static GameStateManager GetDefaultInitialState(IServiceProvider serviceProvider)
+{
+    var initialState = new GameState(0, new GameStateTiles(new Dictionary<GamePosition, GameTile>
     {
-        Application.Init();
-
-        var services = new ServiceCollection();
-        services.AddSingleton(GetDefaultInitialState());
-        services.AddSingleton<MainWindow>();
-        services.AddSingleton<GtkApplication>();
-        services.AddSingleton<TileDrawingArea>();
-        services.AddSingleton<StatisticsPage>();
-        services.AddSingleton<ActionsPage>();
-
-        var serviceProvider = services.BuildServiceProvider();
-
-        var win = serviceProvider.GetRequiredService<MainWindow>();
-        win.Show();
-        var app = serviceProvider.GetRequiredService<GtkApplication>();
-        app.Register(Cancellable.Current);
-        app.AddWindow(win);
-
-        Application.Run();
-    }
-
-    private static GameStateManager GetDefaultInitialState()
-    {
-        var tiles = new GameStateTiles(new Dictionary<GamePosition, GameTile>
         {
-            {
-                new GamePosition(5, 5),
-                new GameTile { [Quantity.Oxygen] = 1000f }
-            },
-            {
-                new GamePosition(9, 8),
-                new GameTile { [Quantity.Hydrogen] = 10000f }
-            },
-        });
-        var initialState = new GameState(0, tiles);
-
-        var mutationGenerators = new List<IMutationGenerator>
+            new GamePosition(5, 5),
+            new GameTile { [Quantity.Oxygen] = 1000f }
+        },
         {
-            new TickIncrementerMutationGenerator(),
-            new BrownianMotionMutationGenerator(1f, 0.01f),
-            new MakeWaterMutationGenerator(1f, 0.333f),
-        };
-
-        return new GameStateManager(initialState, mutationGenerators);
-    }
+            new GamePosition(9, 8),
+            new GameTile { [Quantity.Hydrogen] = 10000f }
+        },
+    }));
+    return new GameStateManager(initialState, serviceProvider.GetServices<IMutationGenerator>());
 }

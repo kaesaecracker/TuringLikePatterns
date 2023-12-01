@@ -1,4 +1,3 @@
-using System.Globalization;
 using Window = Gtk.Window;
 
 namespace TuringLikePatterns.Gui;
@@ -11,7 +10,6 @@ internal sealed class MainWindow : Window
         : base("Turing-like Patterns")
     {
         _drawingArea = drawingArea;
-
         DeleteEvent += (_, _) => Application.Quit();
 
         var notebook = new Notebook();

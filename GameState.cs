@@ -1,4 +1,3 @@
-
 namespace TuringLikePatterns;
 
 internal sealed record class GameState(
