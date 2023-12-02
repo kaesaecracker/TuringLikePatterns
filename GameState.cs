@@ -1,11 +1,15 @@
 namespace TuringLikePatterns;
 
-internal sealed record class GameState(
-    long TickCount,
-    GameStateTiles Tiles
-)
+internal sealed record class GameState
 {
-    public long TickCount { get; set; } = TickCount;
+    public GameState(long tickCount = 0, GameStateTiles? tiles = null)
+    {
+        Tiles = tiles ?? new GameStateTiles(new Dictionary<GamePosition, GameTile>());
+        TickCount = tickCount;
+    }
+
+    public long TickCount { get; set; }
+    public GameStateTiles Tiles { get; }
 }
 
 internal sealed class GameStateTiles
@@ -17,11 +21,19 @@ internal sealed class GameStateTiles
         ArgumentNullException.ThrowIfNull(raw);
         _raw = raw;
 
-        TopLeft = new GamePosition(long.MaxValue, long.MaxValue);
-        BottomRight = new GamePosition(long.MinValue, long.MinValue);
+        if (raw.Count == 0)
+        {
+            TopLeft = new GamePosition(-50, -50);
+            BottomRight = new GamePosition(50, 50);
+        }
+        else
+        {
+            TopLeft = new GamePosition(long.MaxValue, long.MaxValue);
+            BottomRight = new GamePosition(long.MinValue, long.MinValue);
 
-        foreach (var pos in _raw.Keys)
-            RefreshBounds(pos);
+            foreach (var pos in _raw.Keys)
+                RefreshBounds(pos);
+        }
     }
 
     private void RefreshBounds(GamePosition pos)
@@ -93,6 +105,4 @@ internal sealed class GameTile
         $"{{{string.Join(",", Raw.Select(kv => kv.Key + "=" + kv.Value).ToArray())}}}";
 }
 
-internal abstract record class NamedData(string Name);
-
-internal sealed record class Quantity(string Name, SKColor Color) : NamedData(Name);
+internal sealed record class Quantity(string Name, SKColor Color);

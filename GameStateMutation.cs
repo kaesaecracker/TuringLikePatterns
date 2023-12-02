@@ -1,6 +1,6 @@
 using Microsoft.Extensions.ObjectPool;
 
-namespace TuringLikePatterns.Mutations;
+namespace TuringLikePatterns;
 
 internal interface IGameStateMutation : IDisposable
 {

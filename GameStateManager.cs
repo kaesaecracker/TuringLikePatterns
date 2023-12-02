@@ -1,12 +1,10 @@
-using TuringLikePatterns.Mutations;
-
 namespace TuringLikePatterns;
 
-internal sealed class GameStateManager(GameState state, IEnumerable<IMutationGenerator> mutationGenerators)
+internal sealed class GameStateManager(IEnumerable<IMutationGenerator> mutationGenerators)
 {
     internal event EventHandler<EventArgs>? GameTickPassed;
 
-    internal GameState State { get; } = state;
+    internal GameState State { get; } = new();
 
     private readonly List<IGameStateMutation> _tempMutationList = [];
 

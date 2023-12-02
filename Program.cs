@@ -26,40 +26,28 @@ static ServiceProvider ConfigureServices()
     services.AddSingleton(new Quantity("hydrogen", SKColors.Blue));
     services.AddSingleton(new Quantity("oxygen", SKColors.White));
     services.AddSingleton<NamedDataResolver<Quantity>>();
+    return new ServiceCollection()
+        // Data
+        .AddQuantity(new Quantity("water", SKColors.Aqua))
+        .AddQuantity(new Quantity("hydrogen", SKColors.Blue))
+        .AddQuantity(new Quantity("oxygen", SKColors.White))
 
-    // Logic
-    services.AddSingleton<IMutationGenerator, TickIncrementerMutationGenerator>();
-    services.AddSingleton<IMutationGenerator>(sp =>
-        new BrownianMotionMutationGenerator(1f, 0.01f));
-    services.AddSingleton<IMutationGenerator>(sp =>
-        ActivatorUtilities.CreateInstance<MakeWaterMutationGenerator>(sp, /*threshold*/1f, /*portionToReact*/0.333f));
+        // Logic
+        .AddMutationGenerator<TickIncrementerMutationGenerator>()
+        .AddMutationGenerator<BrownianMotionMutationGenerator>(1f, 0.01f)
+        .AddMutationGenerator<MakeWaterMutationGenerator>( /*threshold*/1f, /*portionToReact*/0.333f)
+        .AddMutationGenerator<ManualMutationQueue>()
 
-    // State
-    services.AddSingleton(GetDefaultInitialState);
+        // State
+        .AddSingleton<GameStateManager>()
 
-    // GUI
-    services.AddSingleton<MainWindow>();
-    services.AddSingleton<GtkApplication>();
-    services.AddSingleton<TileDrawingArea>();
-    services.AddSingleton<StatisticsPage>();
-    services.AddSingleton<ActionsPage>();
+        // GUI
+        .AddSingleton<MainWindow>()
+        .AddSingleton<GtkApplication>()
+        .AddSingleton<TileDrawingArea>()
+        .AddSingleton<ActionsPage>()
+        .AddSingleton<StatisticsPage>()
 
-    return services.BuildServiceProvider();
-}
-
-static GameStateManager GetDefaultInitialState(IServiceProvider serviceProvider)
-{
-    var quantityResolver = serviceProvider.GetRequiredService<NamedDataResolver<Quantity>>();
-    var initialState = new GameState(0, new GameStateTiles(new Dictionary<GamePosition, GameTile>
-    {
-        {
-            new GamePosition(5, 5),
-            new GameTile { [quantityResolver["oxygen"]] = 1000f }
-        },
-        {
-            new GamePosition(9, 8),
-            new GameTile { [quantityResolver["hydrogen"]] = 10000f }
-        },
-    }));
-    return new GameStateManager(initialState, serviceProvider.GetServices<IMutationGenerator>());
+        // Done!
+        .BuildServiceProvider();
 }
