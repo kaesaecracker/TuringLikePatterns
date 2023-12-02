@@ -92,3 +92,7 @@ internal sealed class GameTile
     public string ToDebugString() =>
         $"{{{string.Join(",", Raw.Select(kv => kv.Key + "=" + kv.Value).ToArray())}}}";
 }
+
+internal abstract record class NamedData(string Name);
+
+internal sealed record class Quantity(string Name, SKColor Color) : NamedData(Name);

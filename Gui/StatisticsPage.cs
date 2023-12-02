@@ -4,16 +4,24 @@ namespace TuringLikePatterns.Gui;
 
 internal sealed class StatisticsPage : Grid
 {
-    public StatisticsPage(GameStateManager gameStateManager, TileDrawingArea drawArea)
+    private sealed record class Statistic(string Name, Func<GameState, string> TextFunc, Label Label);
+
+    private sealed record class CursorStatistic(Quantity Quantity, Label Label);
+
+    public StatisticsPage(GameStateManager gameStateManager, TileDrawingArea drawArea,
+        IEnumerable<Quantity> allQuantities)
     {
         _gameStateManager = gameStateManager;
+        _cursorStatistics = allQuantities
+            .Select(q => new CursorStatistic(q, new Label()))
+            .ToList();
 
         ColumnSpacing = 10;
         RowSpacing = 5;
 
         AttachGlobalStatistics();
         Attach(new Label(""), 0, _currentRow++, 2, 1);
-        AttachCursorStatistics(drawArea);
+        AttachCursorStatistics();
 
         _gameStateManager.GameTickPassed += OnGameStateManagerTickPassed;
         drawArea.HoverTileChange += OnDrawAreaHoverTileChange;
@@ -23,10 +31,7 @@ internal sealed class StatisticsPage : Grid
     private int _currentRow;
     private readonly Label _positionLabel = new("<Position>");
 
-    private sealed record class Statistic(string Name, Func<GameState, string> TextFunc, Label Label);
-
-    private sealed record class CursorStatistic(Quantity Quantity, Label Label);
-
+    private readonly List<CursorStatistic> _cursorStatistics;
     private readonly List<Statistic> _statistics =
     [
         new Statistic("Ticks", s => s.TickCount.ToString(CultureInfo.CurrentCulture), new Label()),
@@ -35,9 +40,6 @@ internal sealed class StatisticsPage : Grid
         new Statistic("Bottom right", s => s.Tiles.BottomRight.ToString(), new Label()),
     ];
 
-    private readonly List<CursorStatistic> _cursorStatistics = Quantity.All
-        .Select(q => new CursorStatistic(q, new Label()))
-        .ToList();
 
     private void OnDrawAreaHoverTileChange(object? _, HoverTileChangeEventArgs args)
     {
@@ -66,7 +68,7 @@ internal sealed class StatisticsPage : Grid
         }
     }
 
-    private void AttachCursorStatistics(TileDrawingArea drawArea)
+    private void AttachCursorStatistics()
     {
         Attach(new Label("=== Cursor ==="), 0, _currentRow++, 2, 1);
 

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Gdk;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.Gtk;
@@ -11,19 +10,23 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     private readonly GameStateManager _stateManager;
 
-    private readonly Dictionary<Quantity, SKPaint> _quantityPaints = Quantity.All.ToDictionary(
-        quantity => quantity,
-        quantity =>
-        {
-            var paint = new SKPaint();
-            paint.Color = quantity.Color;
-            paint.Style = SKPaintStyle.Fill;
-            return paint;
-        });
+    private readonly Dictionary<Quantity, SKPaint> _quantityPaints;
 
-    public TileDrawingArea(GameStateManager stateManager)
+    public TileDrawingArea(
+        GameStateManager stateManager,
+        IEnumerable<Quantity> allQuantities)
     {
         _stateManager = stateManager;
+        _quantityPaints = allQuantities.ToDictionary(
+            quantity => quantity,
+            quantity =>
+            {
+                var paint = new SKPaint();
+                paint.Color = quantity.Color;
+                paint.Style = SKPaintStyle.Fill;
+                return paint;
+            });
+
         stateManager.GameTickPassed += StateManagerGameTickPassed;
         ButtonPressEvent += OnButtonPress;
         MotionNotifyEvent += OnMotion;
@@ -123,7 +126,11 @@ internal sealed class TileDrawingArea : SKDrawingArea
         {
             var highestQuantity = tile.GetHighestQuantity();
             if (highestQuantity != null && tile[highestQuantity] > 0)
-                canvas.DrawRect(position.X, position.Y, 1f, 1f, quantityPaints[highestQuantity]);
+            {
+                var paint = quantityPaints[highestQuantity];
+                canvas.DrawRect(position.X, position.Y, 1f, 1f, paint);
+            }
+
             canvas.DrawRect(position.X, position.Y, 1f, 1f, tileMarkerPaint);
         }
     }
