@@ -86,6 +86,14 @@ internal readonly record struct GamePosition(long X, long Y)
 
     internal GamePosition Right() => this with { X = X + 1 };
 
+    internal IEnumerable<GamePosition> Neighbors()
+    {
+        yield return Top();
+        yield return Right();
+        yield return Bottom();
+        yield return Left();
+    }
+
     public override string ToString() => $"({X} | {Y})";
 }
 

@@ -7,6 +7,8 @@ namespace TuringLikePatterns.Gui;
 internal sealed class TileDrawingArea : SKDrawingArea
 {
     private GamePosition _lastMousePosition;
+    private GamePosition _lastTopLeft;
+    private GamePosition _lastBottomRight;
 
     private readonly GameStateManager _stateManager;
 
@@ -51,6 +53,8 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     private void StateManagerGameTickPassed(object? sender, EventArgs e)
     {
+        _lastTopLeft = _stateManager.State.Tiles.TopLeft;
+        _lastBottomRight = _stateManager.State.Tiles.BottomRight;
         QueueDraw();
     }
 
@@ -101,16 +105,13 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     private (SKPoint Translate, float Scale) GetScalingInfo(SKSizeI canvasSize)
     {
-        var topLeft = _stateManager.State.Tiles.TopLeft;
-        var bottomRight = _stateManager.State.Tiles.BottomRight;
-
-        var logicalWidth = bottomRight.X - topLeft.X + 1;
-        var logicalHeight = bottomRight.Y - topLeft.Y + 1;
+        var logicalWidth = _lastBottomRight.X - _lastTopLeft.X + 1;
+        var logicalHeight = _lastBottomRight.Y - _lastTopLeft.Y + 1;
 
         var sx = (float)canvasSize.Width / logicalWidth;
         var sy = (float)canvasSize.Height / logicalHeight;
         var s = Math.Min(sx, sy);
-        return (new SKPoint(-topLeft.X, -topLeft.Y), s);
+        return (new SKPoint(-_lastTopLeft.X, -_lastTopLeft.Y), s);
     }
 
     private static void DrawTiles(

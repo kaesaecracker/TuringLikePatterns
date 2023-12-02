@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Diagnostics;
 using TuringLikePatterns.Mutations;
 
 namespace TuringLikePatterns.Gui;
@@ -6,10 +8,11 @@ internal sealed class ActionsPage : Grid
 {
     private readonly GameStateManager _gameStateManager;
     private readonly ManualMutationQueue _manualMutationQueue;
-    private readonly IEnumerable<Quantity> _quantities;
-    private readonly SpinButton _tpcSpinner;
-    private readonly SpinButton _amountSpinner;
-    private int _currentRow;
+    private readonly ImmutableArray<Quantity> _quantities;
+
+    private int _ticksPerClick = 1;
+    private Quantity _selectedQuantity;
+    private float _selectedAmount = 100;
 
     public ActionsPage(
         GameStateManager gameStateManager,
@@ -19,46 +22,67 @@ internal sealed class ActionsPage : Grid
     {
         _gameStateManager = gameStateManager;
         _manualMutationQueue = manualMutationQueue;
-        _quantities = quantities;
+        _quantities = quantities.ToImmutableArray();
 
-        _tpcSpinner = new SpinButton(1, 1000, 1);
-        _amountSpinner = new SpinButton(100, 10000000000, 10);
-
-        drawingArea.TileRightClick += DrawingAreaOnTileRightClick;
-
-        AttachManualTicker();
-        AttachRightClickControl();
-    }
-
-    private void AttachManualTicker()
-    {
-        Attach(_tpcSpinner, 0, _currentRow, 1, 1);
+        var currentRow = 0;
+        var tpcSpinner = new SpinButton(1, 1000, 1);
+        Attach(tpcSpinner, 0, currentRow, 1, 1);
 
         var tickButton = new Button(new Label("Tick"));
-        Attach(tickButton, 1, _currentRow++, 1, 1);
+        Attach(tickButton, 1, currentRow++, 1, 1);
 
+        Attach(new Label("=== Right click ==="), 0, currentRow++, 2, 1);
+
+        Attach(new Label("Amount"), 0, currentRow, 1, 1);
+        var amountSpinner = new SpinButton(100, 10000000000, 10);
+        amountSpinner.Value = _selectedAmount;
+        Attach(amountSpinner, 1, currentRow++, 1, 1);
+
+        Attach(new Label("Type"), 0, currentRow, 1, 1);
+        var quantitySelect = new ComboBox(_quantities.Select(q => q.Name).ToArray());
+        _selectedQuantity = _quantities.First();
+        quantitySelect.Active = 0;
+        Attach(quantitySelect, 1, currentRow++, 1, 1);
+
+        quantitySelect.Changed += QuantitySelectOnChanged;
+        drawingArea.TileRightClick += DrawingAreaOnTileRightClick;
         tickButton.Clicked += OnTickButtonClicked;
+        amountSpinner.Changed += AmountSpinnerOnChanged;
+        tpcSpinner.Changed += TpcSpinnerOnChanged;
+    }
+
+    private void TpcSpinnerOnChanged(object? sender, EventArgs e)
+    {
+        var spinner = sender as SpinButton;
+        Trace.Assert(spinner != null);
+
+        _ticksPerClick = spinner.ValueAsInt;
+    }
+
+    private void AmountSpinnerOnChanged(object? sender, EventArgs e)
+    {
+        var spinner = sender as SpinButton;
+        Trace.Assert(spinner != null);
+
+        _selectedAmount = (float)spinner.Value;
+    }
+
+    private void QuantitySelectOnChanged(object? sender, EventArgs e)
+    {
+        var comboBox = sender as ComboBox;
+        Trace.Assert(comboBox != null);
+        _selectedQuantity = _quantities[comboBox.Active];
     }
 
     private void OnTickButtonClicked(object? sender, EventArgs eventArgs)
     {
-        for (var i = 0; i < _tpcSpinner.ValueAsInt; i++)
+        for (var i = 0; i < _ticksPerClick; i++)
             _gameStateManager.Tick();
-    }
-
-    private void AttachRightClickControl()
-    {
-        Attach(new Label("=== Right click ==="), 0, _currentRow++, 2, 1);
-
-        Attach(new Label("Amount"), 0, _currentRow, 1, 1);
-        Attach(_amountSpinner, 1, _currentRow++, 1, 1);
     }
 
     private void DrawingAreaOnTileRightClick(object? sender, TileClickEventArgs e)
     {
         var position = e.Position;
-        var amount = (float)_amountSpinner.Value;
-        var quantity = _quantities.First(); // TODO make selectable
-        _manualMutationQueue.Enqueue(AddQuantityMutation.Get(position, quantity, amount));
+        _manualMutationQueue.Enqueue(AddQuantityMutation.Get(position, _selectedQuantity, _selectedAmount));
     }
 }

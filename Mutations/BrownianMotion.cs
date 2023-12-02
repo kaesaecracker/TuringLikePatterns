@@ -5,20 +5,25 @@ internal sealed class BrownianMotionMutationGenerator(float threshold, float por
     public IEnumerable<IGameStateMutation> GetMutations(GameState state)
     {
         foreach (var (position, tile) in state.Tiles)
-        foreach (var (quantity, amount) in tile.Raw)
+        foreach (var (quantity, currentAmount) in tile.Raw)
         {
-            if (amount <= threshold)
+            if (currentAmount <= threshold)
                 continue;
 
-            var amountToSpread = amount * portionToSpread;
+            var amountPerNeighbor = currentAmount * portionToSpread / 4;
+            var amountToSpread = 0f;
+
+            foreach (var neighborPos in position.Neighbors())
+            {
+                // TODO: this mutates tile.Raw and thus does not work
+                //if (state.Tiles[neighborPos][quantity] > currentAmount)
+                //    continue;
+
+                amountToSpread += amountPerNeighbor;
+                yield return AddQuantityMutation.Get(neighborPos, quantity, amountPerNeighbor);
+            }
 
             yield return AddQuantityMutation.Get(position, quantity, -amountToSpread);
-
-            var amountForNeighbors = amountToSpread / 4;
-            yield return AddQuantityMutation.Get(position.Left(), quantity, amountForNeighbors);
-            yield return AddQuantityMutation.Get(position.Top(), quantity, amountForNeighbors);
-            yield return AddQuantityMutation.Get(position.Right(), quantity, amountForNeighbors);
-            yield return AddQuantityMutation.Get(position.Bottom(), quantity, amountForNeighbors);
         }
     }
 }
