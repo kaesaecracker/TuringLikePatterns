@@ -1,8 +1,8 @@
 using System.Globalization;
 
-namespace TuringLikePatterns.Gui;
+namespace TuringLikePatterns.Views;
 
-internal sealed class StatisticsPage : Grid
+internal sealed class StatisticsPage : IToolsPage, IDisposable
 {
     private sealed record class Statistic(string Name, Func<GameState, string> TextFunc, Label Label);
 
@@ -16,17 +16,21 @@ internal sealed class StatisticsPage : Grid
             .Select(q => new CursorStatistic(q, new Label()))
             .ToList();
 
-        ColumnSpacing = 10;
-        RowSpacing = 5;
+        _grid.ColumnSpacing = 10;
+        _grid.RowSpacing = 5;
 
         AttachGlobalStatistics();
-        Attach(new Label(""), 0, _currentRow++, 2, 1);
+        _grid.Attach(new Label(""), 0, _currentRow++, 2, 1);
         AttachCursorStatistics();
 
         _gameStateManager.GameTickPassed += OnGameStateManagerTickPassed;
         drawArea.HoverTileChange += OnDrawAreaHoverTileChange;
     }
 
+    string IToolsPage.Name => "Statistics";
+    Widget IToolsPage.Widget => _grid;
+
+    private readonly Grid _grid = new();
     private readonly GameStateManager _gameStateManager;
     private int _currentRow;
     private readonly Label _positionLabel = new("<Position>");
@@ -40,18 +44,16 @@ internal sealed class StatisticsPage : Grid
         new Statistic("Bottom right", s => s.Tiles.BottomRight.ToString(), new Label()),
     ];
 
-
     private void OnDrawAreaHoverTileChange(object? _, HoverTileChangeEventArgs args)
     {
         _positionLabel.Text = args.Position.ToString();
+        var tile = _gameStateManager.State.Tiles[args.Position];
+
         foreach (var (quantity, label) in _cursorStatistics)
-        {
-            var amount = (long)_gameStateManager.State.Tiles[args.Position][quantity];
-            label.Text = amount.ToString(CultureInfo.CurrentCulture);
-        }
+            label.Text = Math.Round(tile?[quantity] ?? 0f).ToString(CultureInfo.CurrentCulture);
     }
 
-    private void OnGameStateManagerTickPassed(object? o, EventArgs eventArgs)
+    private void OnGameStateManagerTickPassed(object? _, EventArgs eventArgs)
     {
         foreach (var (_, textFunc, label) in _statistics)
             label.Text = textFunc(_gameStateManager.State);
@@ -61,24 +63,30 @@ internal sealed class StatisticsPage : Grid
     {
         foreach (var (name, textFunc, label) in _statistics)
         {
-            Attach(new Label(name), 0, _currentRow, 1, 1);
+            _grid.Attach(new Label(name), 0, _currentRow, 1, 1);
 
             label.Text = textFunc(_gameStateManager.State);
-            Attach(label, 1, _currentRow++, 1, 1);
+            _grid.Attach(label, 1, _currentRow++, 1, 1);
         }
     }
 
     private void AttachCursorStatistics()
     {
-        Attach(new Label("=== Cursor ==="), 0, _currentRow++, 2, 1);
+        _grid.Attach(new Label("=== Cursor ==="), 0, _currentRow++, 2, 1);
 
-        Attach(new Label("Position"), 0, _currentRow, 1, 1);
-        Attach(_positionLabel, 1, _currentRow++, 1, 1);
+        _grid.Attach(new Label("Position"), 0, _currentRow, 1, 1);
+        _grid.Attach(_positionLabel, 1, _currentRow++, 1, 1);
 
         foreach (var (quantity, label) in _cursorStatistics)
         {
-            Attach(new Label(quantity.Name), 0, _currentRow, 1, 1);
-            Attach(label, 1, _currentRow++, 1, 1);
+            _grid.Attach(new Label(quantity.Name), 0, _currentRow, 1, 1);
+            _grid.Attach(label, 1, _currentRow++, 1, 1);
         }
+    }
+
+    public void Dispose()
+    {
+        _grid.Dispose();
+        _positionLabel.Dispose();
     }
 }

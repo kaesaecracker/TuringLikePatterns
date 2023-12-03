@@ -1,20 +1,20 @@
 using Window = Gtk.Window;
 
-namespace TuringLikePatterns.Gui;
+namespace TuringLikePatterns.Views;
 
 internal sealed class MainWindow : Window
 {
     private readonly TileDrawingArea _drawingArea;
 
-    public MainWindow(TileDrawingArea drawingArea, StatisticsPage statisticsPage, ActionsPage actionsPage)
+    public MainWindow(TileDrawingArea drawingArea, IEnumerable<IToolsPage> toolPages)
         : base("Turing-like Patterns")
     {
         _drawingArea = drawingArea;
         DeleteEvent += (_, _) => Application.Quit();
 
         var notebook = new Notebook();
-        notebook.AppendPage(statisticsPage, new Label("Statistics"));
-        notebook.AppendPage(actionsPage, new Label("Actions"));
+        foreach (var toolPage in toolPages)
+            notebook.AppendPage(toolPage.Widget, new Label(toolPage.Name));
 
         var child = new HBox();
         child.PackStart(_drawingArea, true, true, 0);

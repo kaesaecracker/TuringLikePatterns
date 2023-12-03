@@ -11,12 +11,14 @@
     <PropertyGroup>
         <AnalysisMode>Recommended</AnalysisMode>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <NoWarn>CA1010</NoWarn>
+        <NoWarn>CA1010;CA1848</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="GtkSharp" Version="3.22.24.37"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0"/>
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="8.0.0"/>
         <PackageReference Include="SkiaSharp" Version="2.88.6"/>
         <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.6"/>

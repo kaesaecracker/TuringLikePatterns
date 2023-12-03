@@ -54,23 +54,25 @@ internal sealed class GameStateTiles
 
     public int NonEmptyCount => _raw.Count;
 
-    public GameTile this[GamePosition pos]
+    public GameTile? this[GamePosition position]
     {
-        get
-        {
-            if (_raw.TryGetValue(pos, out var result))
-                return result;
-
-            var newTile = new GameTile();
-            this[pos] = newTile;
-            return newTile;
-        }
-
+        get => _raw.GetValueOrDefault(position);
         private set
         {
-            _raw[pos] = value;
-            RefreshBounds(pos);
+            ArgumentNullException.ThrowIfNull(value);
+            _raw[position] = value;
+            RefreshBounds(position);
         }
+    }
+
+    public GameTile GetOrCreate(GamePosition position)
+    {
+        if (_raw.TryGetValue(position, out var result))
+            return result;
+
+        var newTile = new GameTile();
+        this[position] = newTile;
+        return newTile;
     }
 
     public IEnumerator<KeyValuePair<GamePosition, GameTile>> GetEnumerator() => _raw.GetEnumerator();
@@ -86,7 +88,27 @@ internal readonly record struct GamePosition(long X, long Y)
 
     internal GamePosition Right() => this with { X = X + 1 };
 
-    internal IEnumerable<GamePosition> Neighbors()
+    internal IEnumerable<GamePosition> FarNeighborPositions()
+    {
+        var temp = Top();
+        yield return temp;
+        temp = temp.Right();
+        yield return temp;
+        temp = temp.Bottom();
+        yield return temp;
+        temp = temp.Bottom();
+        yield return temp;
+        temp = temp.Left();
+        yield return temp;
+        temp = temp.Left();
+        yield return temp;
+        temp = temp.Top();
+        yield return temp;
+        temp = temp.Top();
+        yield return temp;
+    }
+
+    internal IEnumerable<GamePosition> NearNeighborPositions()
     {
         yield return Top();
         yield return Right();

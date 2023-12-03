@@ -1,8 +1,9 @@
 using Gdk;
+using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.Gtk;
 
-namespace TuringLikePatterns.Gui;
+namespace TuringLikePatterns.Views;
 
 internal sealed class TileDrawingArea : SKDrawingArea
 {
@@ -13,11 +14,13 @@ internal sealed class TileDrawingArea : SKDrawingArea
     private readonly GameStateManager _stateManager;
 
     private readonly Dictionary<Quantity, SKPaint> _quantityPaints;
+    private readonly ILogger _logger;
 
     public TileDrawingArea(
         GameStateManager stateManager,
-        IEnumerable<Quantity> allQuantities)
+        IEnumerable<Quantity> allQuantities, ILogger<TileDrawingArea> logger)
     {
+        _logger = logger;
         _stateManager = stateManager;
         _quantityPaints = allQuantities.ToDictionary(
             quantity => quantity,
@@ -28,8 +31,10 @@ internal sealed class TileDrawingArea : SKDrawingArea
                 paint.Style = SKPaintStyle.Fill;
                 return paint;
             });
+        _lastTopLeft = _stateManager.State.Tiles.TopLeft;
+        _lastBottomRight = _stateManager.State.Tiles.BottomRight;
 
-        stateManager.GameTickPassed += StateManagerGameTickPassed;
+        _stateManager.GameTickPassed += StateManagerGameTickPassed;
         ButtonPressEvent += OnButtonPress;
         MotionNotifyEvent += OnMotion;
         AddEvents((int)EventMask.ButtonPressMask);
@@ -70,7 +75,7 @@ internal sealed class TileDrawingArea : SKDrawingArea
                 TileRightClick?.Invoke(this, new TileClickEventArgs(gamePosition));
                 break;
             default:
-                Console.WriteLine($"unhandled mouse button {args.Event.Button}");
+                _logger.LogDebug("unhandled mouse button {Button}", args.Event.Button);
                 break;
         }
     }
@@ -79,8 +84,8 @@ internal sealed class TileDrawingArea : SKDrawingArea
     {
         var (translate, scale) = GetScalingInfo(CanvasSize.ToSizeI());
         return new GamePosition(
-            (long)(x / scale - translate.X),
-            (long)(y / scale - translate.Y)
+            (long)Math.Round(x / scale - translate.X, MidpointRounding.ToNegativeInfinity),
+            (long)Math.Round(y / scale - translate.Y, MidpointRounding.ToNegativeInfinity)
         );
     }
 

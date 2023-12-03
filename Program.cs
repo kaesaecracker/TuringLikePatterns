@@ -1,8 +1,10 @@
 using GLib;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TuringLikePatterns;
-using TuringLikePatterns.Gui;
 using TuringLikePatterns.Mutations;
+using TuringLikePatterns.Views;
+using TuringLikePatterns.ViewStates;
 
 var serviceProvider = ConfigureServices();
 Gtk.Application.Init();
@@ -19,26 +21,22 @@ return;
 
 static ServiceProvider ConfigureServices()
 {
-    var services = new ServiceCollection();
-
-    // Data
-    services.AddSingleton(new Quantity("water", SKColors.Aqua));
-    services.AddSingleton(new Quantity("hydrogen", SKColors.Blue));
-    services.AddSingleton(new Quantity("oxygen", SKColors.White));
-    services.AddSingleton<NamedDataResolver<Quantity>>();
     return new ServiceCollection()
         // Data
         .AddQuantity(new Quantity("water", SKColors.Aqua))
         .AddQuantity(new Quantity("hydrogen", SKColors.Blue))
         .AddQuantity(new Quantity("oxygen", SKColors.White))
+        .AddQuantity(new Quantity("Conway's life", SKColors.PaleGreen))
 
         // Logic
         .AddMutationGenerator<TickIncrementerMutationGenerator>()
         .AddMutationGenerator<BrownianMotionMutationGenerator>(1f, 0.01f)
         .AddMutationGenerator<MakeWaterMutationGenerator>( /*threshold*/1f, /*portionToReact*/0.333f)
         .AddMutationGenerator<ManualMutationQueue>()
+        .AddMutationGenerator<ConwaysGameOfLifeMutationGenerator>()
 
         // State
+        .AddSingleton<ZoomState>()
         .AddSingleton<GameStateManager>()
 
         // GUI
@@ -47,7 +45,14 @@ static ServiceProvider ConfigureServices()
         .AddSingleton<TileDrawingArea>()
         .AddSingleton<ActionsPage>()
         .AddSingleton<StatisticsPage>()
+        .AddSingleton<IToolsPage, ActionsPage>()
+        .AddSingleton<IToolsPage, StatisticsPage>()
 
-        // Done!
+        // Technical stuff
+        .AddLogging(builder => builder
+            .SetMinimumLevel(LogLevel.Trace)
+            .AddConsole())
+
+        // Done
         .BuildServiceProvider();
 }

@@ -7,13 +7,13 @@ internal sealed class BrownianMotionMutationGenerator(float threshold, float por
         foreach (var (position, tile) in state.Tiles)
         foreach (var (quantity, currentAmount) in tile.Raw)
         {
-            if (currentAmount <= threshold)
+            if (currentAmount < threshold)
                 continue;
 
             var amountPerNeighbor = currentAmount * portionToSpread / 4;
             var amountToSpread = 0f;
 
-            foreach (var neighborPos in position.Neighbors())
+            foreach (var neighborPos in position.NearNeighborPositions())
             {
                 // TODO: this mutates tile.Raw and thus does not work
                 //if (state.Tiles[neighborPos][quantity] > currentAmount)
