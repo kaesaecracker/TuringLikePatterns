@@ -2,12 +2,13 @@ using Gdk;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.Gtk;
+using TuringLikePatterns.GameState;
+using TuringLikePatterns.ViewStates;
 
 namespace TuringLikePatterns.Views;
 
 internal sealed class TileDrawingArea : SKDrawingArea
 {
-    private GamePosition _lastMousePosition;
     private GamePosition _lastTopLeft;
     private GamePosition _lastBottomRight;
 
@@ -15,13 +16,27 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     private readonly Dictionary<Quantity, SKPaint> _quantityPaints;
     private readonly ILogger _logger;
+    private readonly ZoomState _zoomState;
+    private readonly TileAreaMouseState _mouseState;
+    private readonly GameBounds _gameBounds;
+    private readonly GameTileField _field;
 
     public TileDrawingArea(
         GameStateManager stateManager,
-        IEnumerable<Quantity> allQuantities, ILogger<TileDrawingArea> logger)
+        IEnumerable<Quantity> allQuantities,
+        ILogger<TileDrawingArea> logger,
+        ZoomState zoomState,
+        TileAreaMouseState mouseState,
+        GameBounds gameBounds,
+        GameTileField field)
     {
         _logger = logger;
         _stateManager = stateManager;
+        _zoomState = zoomState;
+        _mouseState = mouseState;
+        _gameBounds = gameBounds;
+        _field = field;
+
         _quantityPaints = allQuantities.ToDictionary(
             quantity => quantity,
             quantity =>
@@ -31,53 +46,44 @@ internal sealed class TileDrawingArea : SKDrawingArea
                 paint.Style = SKPaintStyle.Fill;
                 return paint;
             });
-        _lastTopLeft = _stateManager.State.Tiles.TopLeft;
-        _lastBottomRight = _stateManager.State.Tiles.BottomRight;
+
+        _lastTopLeft = gameBounds.TopLeft.Value;
+        _lastBottomRight = gameBounds.BottomRight.Value;
 
         _stateManager.GameTickPassed += StateManagerGameTickPassed;
-        ButtonPressEvent += OnButtonPress;
-        MotionNotifyEvent += OnMotion;
+
+        ButtonPressEvent += (o, args) =>
+        {
+            var gamePosition = CanvasPointToGamePosition(args.Event.X, args.Event.Y);
+            switch (args.Event.Button)
+            {
+                case 1:
+                    _mouseState.LeftClickTile.OnNext(gamePosition);
+                    break;
+                case 3:
+                    _mouseState.RightClickTile.OnNext(gamePosition);
+                    break;
+                default:
+                    _logger.LogDebug("unhandled mouse button {Button}", args.Event.Button);
+                    break;
+            }
+        };
+        MotionNotifyEvent += (o, args) =>
+        {
+            var gamePosition = CanvasPointToGamePosition(args.Event.X, args.Event.Y);
+            _mouseState.HoveredTile.OnNext(gamePosition);
+        };
+        //ConfigureEvent += OnConfigureEvent;
+
         AddEvents((int)EventMask.ButtonPressMask);
         AddEvents((int)EventMask.PointerMotionMask);
     }
 
-    internal event EventHandler<HoverTileChangeEventArgs>? HoverTileChange;
-
-    internal event EventHandler<TileClickEventArgs>? TileLeftClick;
-
-    internal event EventHandler<TileClickEventArgs>? TileRightClick;
-
-    private void OnMotion(object o, MotionNotifyEventArgs args)
-    {
-        var gamePosition = CanvasPointToGamePosition(args.Event.X, args.Event.Y);
-        if (gamePosition == _lastMousePosition)
-            return;
-        _lastMousePosition = gamePosition;
-        HoverTileChange?.Invoke(this, new HoverTileChangeEventArgs(gamePosition));
-    }
-
     private void StateManagerGameTickPassed(object? sender, EventArgs e)
     {
-        _lastTopLeft = _stateManager.State.Tiles.TopLeft;
-        _lastBottomRight = _stateManager.State.Tiles.BottomRight;
+        _lastTopLeft = _gameBounds.TopLeft.Value;
+        _lastBottomRight = _gameBounds.BottomRight.Value;
         QueueDraw();
-    }
-
-    private void OnButtonPress(object o, ButtonPressEventArgs args)
-    {
-        var gamePosition = CanvasPointToGamePosition(args.Event.X, args.Event.Y);
-        switch (args.Event.Button)
-        {
-            case 1:
-                TileLeftClick?.Invoke(this, new TileClickEventArgs(gamePosition));
-                break;
-            case 3:
-                TileRightClick?.Invoke(this, new TileClickEventArgs(gamePosition));
-                break;
-            default:
-                _logger.LogDebug("unhandled mouse button {Button}", args.Event.Button);
-                break;
-        }
     }
 
     private GamePosition CanvasPointToGamePosition(double x, double y)
@@ -98,7 +104,7 @@ internal sealed class TileDrawingArea : SKDrawingArea
         canvas.Clear(SKColors.Black);
 
         ApplyScale(e.Info.Size, canvas);
-        DrawTiles(_stateManager.State, canvas, _quantityPaints);
+        DrawTiles(canvas);
     }
 
     private void ApplyScale(SKSizeI canvasSize, SKCanvas canvas)
@@ -115,25 +121,22 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
         var sx = (float)canvasSize.Width / logicalWidth;
         var sy = (float)canvasSize.Height / logicalHeight;
-        var s = Math.Min(sx, sy);
-        return (new SKPoint(-_lastTopLeft.X, -_lastTopLeft.Y), s);
+        var s = Math.Min(sx, sy) * _zoomState.ManualScale.Value;
+        return (new SKPoint(-_lastTopLeft.X, -_lastTopLeft.Y), (float)s);
     }
 
-    private static void DrawTiles(
-        GameState state,
-        SKCanvas canvas,
-        IReadOnlyDictionary<Quantity, SKPaint> quantityPaints)
+    private void DrawTiles(SKCanvas canvas)
     {
         using var tileMarkerPaint = new SKPaint();
         tileMarkerPaint.Color = SKColors.Gray;
         tileMarkerPaint.Style = SKPaintStyle.Stroke;
 
-        foreach (var (position, tile) in state.Tiles)
+        foreach (var (position, tile) in _field)
         {
             var highestQuantity = tile.GetHighestQuantity();
             if (highestQuantity != null && tile[highestQuantity] > 0)
             {
-                var paint = quantityPaints[highestQuantity];
+                var paint = _quantityPaints[highestQuantity];
                 canvas.DrawRect(position.X, position.Y, 1f, 1f, paint);
             }
 

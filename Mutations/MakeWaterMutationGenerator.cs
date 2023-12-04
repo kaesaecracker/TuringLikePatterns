@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using TuringLikePatterns.GameState;
 
 namespace TuringLikePatterns.Mutations;
 
@@ -7,13 +8,14 @@ internal sealed class MakeWaterMutationGenerator(
     float portionToReact,
     [FromKeyedServices(nameof(hydrogen))] Quantity hydrogen,
     [FromKeyedServices(nameof(water))] Quantity water,
-    [FromKeyedServices(nameof(oxygen))] Quantity oxygen
+    [FromKeyedServices(nameof(oxygen))] Quantity oxygen,
+    GameTileField tileField
 )
     : IMutationGenerator
 {
-    public IEnumerable<IGameStateMutation> GetMutations(GameState state)
+    public IEnumerable<IGameStateMutation> GetMutations()
     {
-        foreach (var (position, tile) in state.Tiles)
+        foreach (var (position, tile) in tileField)
         {
             var h = tile[hydrogen];
             if (h < 2 * threshold)

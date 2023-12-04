@@ -1,23 +1,26 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TuringLikePatterns.GameState;
 
 namespace TuringLikePatterns.Mutations;
 
 internal sealed class ConwaysGameOfLifeMutationGenerator(
     [FromKeyedServices("Conway's life")] Quantity life,
-    ILogger<ConwaysGameOfLifeMutationGenerator> logger
+    ILogger<ConwaysGameOfLifeMutationGenerator> logger,
+    GameTileField tileField,
+    GameBounds bounds
 )
     : IMutationGenerator
 {
-    public IEnumerable<IGameStateMutation> GetMutations(GameState state)
+    public IEnumerable<IGameStateMutation> GetMutations()
     {
-        for (var x = state.Tiles.TopLeft.X; x <= state.Tiles.BottomRight.X; x++)
-        for (var y = state.Tiles.TopLeft.Y; y <= state.Tiles.BottomRight.Y; y++)
+        for (var x = bounds.TopLeft.Value.X - 1; x <= bounds.BottomRight.Value.X + 1; x++)
+        for (var y = bounds.TopLeft.Value.Y - 1; y <= bounds.BottomRight.Value.Y + 1; y++)
         {
             var currentPosition = new GamePosition(x, y);
-            var currentLifeAmount = state.Tiles[currentPosition]?[life] ?? 0f;
+            var currentLifeAmount = tileField[currentPosition]?[life] ?? 0f;
             var aliveNeighbors = currentPosition.FarNeighborPositions()
-                .Select(p => state.Tiles[p])
+                .Select(p => tileField[p])
                 .Count(t => t != null && t[life] >= 1);
 
             var alive = currentLifeAmount >= 1;

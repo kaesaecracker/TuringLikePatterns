@@ -18,7 +18,7 @@ internal sealed class MainWindow : Window
 
         var child = new HBox();
         child.PackStart(_drawingArea, true, true, 0);
-        child.PackEnd(notebook, false, false, 0);
+        child.PackEnd(notebook, false, true, 0);
         child.ShowAll();
         Child = child;
     }

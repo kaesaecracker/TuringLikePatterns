@@ -1,10 +1,13 @@
+using TuringLikePatterns.GameState;
+
 namespace TuringLikePatterns.Mutations;
 
-internal sealed class BrownianMotionMutationGenerator(float threshold, float portionToSpread) : IMutationGenerator
+internal sealed class BrownianMotionMutationGenerator(GameTileField tileField, float threshold, float portionToSpread)
+    : IMutationGenerator
 {
-    public IEnumerable<IGameStateMutation> GetMutations(GameState state)
+    public IEnumerable<IGameStateMutation> GetMutations()
     {
-        foreach (var (position, tile) in state.Tiles)
+        foreach (var (position, tile) in tileField)
         foreach (var (quantity, currentAmount) in tile.Raw)
         {
             if (currentAmount < threshold)

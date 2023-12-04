@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using TuringLikePatterns.GameState;
 using TuringLikePatterns.Mutations;
+using TuringLikePatterns.ViewStates;
 
 namespace TuringLikePatterns.Views;
 
@@ -22,7 +24,7 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
 
     public ActionsPage(
         GameStateManager gameStateManager,
-        TileDrawingArea drawingArea,
+        TileAreaMouseState drawingAreaMouseState,
         ManualMutationQueue manualMutationQueue,
         IEnumerable<Quantity> quantities,
         ILogger<ActionsPage> logger)
@@ -54,7 +56,7 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
         _grid.Attach(quantitySelect, 1, currentRow++, 1, 1);
 
         quantitySelect.Changed += QuantitySelectOnChanged;
-        drawingArea.TileRightClick += DrawingAreaOnTileRightClick;
+        drawingAreaMouseState.RightClickTile.Subscribe(DrawingAreaOnTileRightClick);
         tickButton.Clicked += OnTickButtonClicked;
         amountSpinner.Changed += AmountSpinnerOnChanged;
         tpcSpinner.Changed += TpcSpinnerOnChanged;
@@ -90,9 +92,8 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
             _gameStateManager.Tick();
     }
 
-    private void DrawingAreaOnTileRightClick(object? sender, TileClickEventArgs e)
+    private void DrawingAreaOnTileRightClick(GamePosition position)
     {
-        var position = e.Position;
         _manualMutationQueue.Enqueue(AddQuantityMutation.Get(position, _selectedQuantity, _selectedAmount));
     }
 

@@ -1,17 +1,27 @@
 using System.Globalization;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using TuringLikePatterns.GameState;
+using TuringLikePatterns.ViewStates;
 
 namespace TuringLikePatterns.Views;
 
 internal sealed class StatisticsPage : IToolsPage, IDisposable
 {
-    private sealed record class Statistic(string Name, Func<GameState, string> TextFunc, Label Label);
-
     private sealed record class CursorStatistic(Quantity Quantity, Label Label);
 
-    public StatisticsPage(GameStateManager gameStateManager, TileDrawingArea drawArea,
-        IEnumerable<Quantity> allQuantities)
+    public StatisticsPage(
+        GameStateManager gameStateManager,
+        TileAreaMouseState drawAreaMouseState,
+        IEnumerable<Quantity> allQuantities,
+        IEnumerable<Statistic> allStatistics,
+        GameTileField field
+    )
     {
         _gameStateManager = gameStateManager;
+        _field = field;
+        _statistics = allStatistics.ToList();
+
         _cursorStatistics = allQuantities
             .Select(q => new CursorStatistic(q, new Label()))
             .ToList();
@@ -24,30 +34,33 @@ internal sealed class StatisticsPage : IToolsPage, IDisposable
         AttachCursorStatistics();
 
         _gameStateManager.GameTickPassed += OnGameStateManagerTickPassed;
-        drawArea.HoverTileChange += OnDrawAreaHoverTileChange;
+
+        var subscription = drawAreaMouseState.HoveredTile
+            .DistinctUntilChanged()
+            .Subscribe(OnDrawAreaHoverTileChange);
+
+        _disposables = new CompositeDisposable(subscription, _grid, _positionLabel);
     }
 
     string IToolsPage.Name => "Statistics";
     Widget IToolsPage.Widget => _grid;
 
-    private readonly Grid _grid = new();
     private readonly GameStateManager _gameStateManager;
+    private readonly GameTileField _field;
+
+    private readonly CompositeDisposable _disposables;
+
     private int _currentRow;
+    private readonly Grid _grid = new();
     private readonly Label _positionLabel = new("<Position>");
 
     private readonly List<CursorStatistic> _cursorStatistics;
-    private readonly List<Statistic> _statistics =
-    [
-        new Statistic("Ticks", s => s.TickCount.ToString(CultureInfo.CurrentCulture), new Label()),
-        new Statistic("Tiles live", s => s.Tiles.NonEmptyCount.ToString(CultureInfo.CurrentCulture), new Label()),
-        new Statistic("Top left", s => s.Tiles.TopLeft.ToString(), new Label()),
-        new Statistic("Bottom right", s => s.Tiles.BottomRight.ToString(), new Label()),
-    ];
+    private readonly List<Statistic> _statistics;
 
-    private void OnDrawAreaHoverTileChange(object? _, HoverTileChangeEventArgs args)
+    private void OnDrawAreaHoverTileChange(GamePosition position)
     {
-        _positionLabel.Text = args.Position.ToString();
-        var tile = _gameStateManager.State.Tiles[args.Position];
+        _positionLabel.Text = position.ToString();
+        var tile = _field[position];
 
         foreach (var (quantity, label) in _cursorStatistics)
             label.Text = Math.Round(tile?[quantity] ?? 0f).ToString(CultureInfo.CurrentCulture);
@@ -55,18 +68,18 @@ internal sealed class StatisticsPage : IToolsPage, IDisposable
 
     private void OnGameStateManagerTickPassed(object? _, EventArgs eventArgs)
     {
-        foreach (var (_, textFunc, label) in _statistics)
-            label.Text = textFunc(_gameStateManager.State);
+        foreach (var stat in _statistics)
+            stat.Label.Text = stat.TextFunc();
     }
 
     private void AttachGlobalStatistics()
     {
-        foreach (var (name, textFunc, label) in _statistics)
+        foreach (var stat in _statistics)
         {
-            _grid.Attach(new Label(name), 0, _currentRow, 1, 1);
+            _grid.Attach(new Label(stat.Name), 0, _currentRow, 1, 1);
 
-            label.Text = textFunc(_gameStateManager.State);
-            _grid.Attach(label, 1, _currentRow++, 1, 1);
+            stat.Label.Text = stat.TextFunc();
+            _grid.Attach(stat.Label, 1, _currentRow++, 1, 1);
         }
     }
 
@@ -86,7 +99,6 @@ internal sealed class StatisticsPage : IToolsPage, IDisposable
 
     public void Dispose()
     {
-        _grid.Dispose();
-        _positionLabel.Dispose();
+        _disposables.Dispose();
     }
 }

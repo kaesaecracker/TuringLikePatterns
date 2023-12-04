@@ -1,10 +1,11 @@
 using Microsoft.Extensions.ObjectPool;
+using TuringLikePatterns.GameState;
 
-namespace TuringLikePatterns;
+namespace TuringLikePatterns.Mutations;
 
 internal interface IGameStateMutation : IDisposable
 {
-    public void Apply(GameState gameState);
+    public void Apply(GameTileField tileField, GameTicker ticker);
 
     void IDisposable.Dispose()
     {
@@ -16,19 +17,24 @@ internal abstract class PooledGameStateMutation<T> : IGameStateMutation, IResett
 {
     private static readonly ObjectPool<T> Pool =
         new DefaultObjectPool<T>(new DefaultPooledObjectPolicy<T>(), int.MaxValue);
+
     private bool _shouldReturn;
 
-    public void Apply(GameState gameState)
+    public void Apply(GameTileField tileField, GameTicker ticker)
     {
         if (!_shouldReturn)
             throw new InvalidOperationException(
                 $"{nameof(PooledGameStateMutation<T>)} not acquired via GetFromPool");
-        InnerApply(gameState);
+        InnerApply(tileField, ticker);
     }
 
-    protected abstract void InnerApply(GameState gameState);
+    protected abstract void InnerApply(GameTileField tileField, GameTicker ticker);
 
-    public bool TryReset() => true;
+    public bool TryReset()
+    {
+        _shouldReturn = false;
+        return true;
+    }
 
     protected static T GetFromPool()
     {

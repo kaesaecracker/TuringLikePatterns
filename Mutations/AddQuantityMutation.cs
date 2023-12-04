@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using TuringLikePatterns.GameState;
 
 namespace TuringLikePatterns.Mutations;
 
@@ -17,9 +18,12 @@ internal sealed class AddQuantityMutation : PooledGameStateMutation<AddQuantityM
         return result;
     }
 
-    protected override void InnerApply(GameState gameState)
+    protected override void InnerApply(GameTileField tileField, GameTicker ticker)
     {
         Trace.Assert(_quantityToChange != null);
-        gameState.Tiles[_position][_quantityToChange] += _amount;
+        var tileToChange = tileField.GetOrCreate(_position);
+        var oldValue = tileToChange[_quantityToChange];
+        var newValue = oldValue + _amount;
+        tileToChange[_quantityToChange] = newValue;
     }
 }
