@@ -1,19 +1,22 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.Models;
+using TuringLikePatterns.TickPhases.Mutations;
 
-namespace TuringLikePatterns.Mutations;
+namespace TuringLikePatterns.TickPhases.Producers;
 
-internal sealed class MakeWaterMutationGenerator(
-    float threshold,
-    float portionToReact,
+internal sealed class MakeWaterProducer(
     [FromKeyedServices(nameof(hydrogen))] Quantity hydrogen,
     [FromKeyedServices(nameof(water))] Quantity water,
     [FromKeyedServices(nameof(oxygen))] Quantity oxygen,
-    GameTileField tileField
+    GameTileField tileField,
+    ObjectPool<AddQuantityMutation> pool,
+    float threshold,
+    float portionToReact
 )
-    : IMutationGenerator
+    : PoolingMutationProducer<AddQuantityMutation>(pool)
 {
-    public IEnumerable<IGameStateMutation> GetMutations()
+    public override IEnumerable<AddQuantityMutation> ProduceMutations()
     {
         foreach (var (position, tile) in tileField)
         {
@@ -30,9 +33,9 @@ internal sealed class MakeWaterMutationGenerator(
             h = Math.Min(h, o / 2f);
             o = Math.Min(o, h * 2f);
 
-            yield return AddQuantityMutation.Get(position, water, o);
-            yield return AddQuantityMutation.Get(position, oxygen, -o);
-            yield return AddQuantityMutation.Get(position, hydrogen, -h);
+            yield return Pool.GetAddQuantity(position, water, o);
+            yield return Pool.GetAddQuantity(position, oxygen, -o);
+            yield return Pool.GetAddQuantity(position, hydrogen, -h);
         }
     }
 }

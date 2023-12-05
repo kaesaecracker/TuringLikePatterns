@@ -3,7 +3,8 @@ using System.Diagnostics;
 using System.Reactive.Disposables;
 using Microsoft.Extensions.Logging;
 using TuringLikePatterns.Models;
-using TuringLikePatterns.Mutations;
+using TuringLikePatterns.TickPhases.Mutations;
+using TuringLikePatterns.TickPhases.Producers;
 using TuringLikePatterns.ViewStates;
 
 namespace TuringLikePatterns.Views;
@@ -12,7 +13,7 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
 {
     private readonly Grid _grid = new();
     private readonly GameStateManager _gameStateManager;
-    private readonly ManualMutationQueue _manualMutationQueue;
+    private readonly ManualAddQuantityProducer _manualAddQuantityProducer;
     private readonly ImmutableArray<Quantity> _quantities;
     private readonly ILogger<ActionsPage> _logger;
     private readonly CompositeDisposable _disposables;
@@ -27,13 +28,13 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
     public ActionsPage(
         GameStateManager gameStateManager,
         TileAreaMouseState drawingAreaMouseState,
-        ManualMutationQueue manualMutationQueue,
+        ManualAddQuantityProducer manualAddQuantityProducer,
         IEnumerable<Quantity> quantities,
         ILogger<ActionsPage> logger)
     {
         _logger = logger;
         _gameStateManager = gameStateManager;
-        _manualMutationQueue = manualMutationQueue;
+        _manualAddQuantityProducer = manualAddQuantityProducer;
         _quantities = quantities.ToImmutableArray();
 
         var currentRow = 0;
@@ -99,7 +100,7 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
 
     private void DrawingAreaOnTileRightClick(GamePosition position)
     {
-        _manualMutationQueue.Enqueue(AddQuantityMutation.Get(position, _selectedQuantity, _selectedAmount));
+        _manualAddQuantityProducer.Enqueue(position, _selectedQuantity, _selectedAmount);
     }
 
     public void Dispose() => _disposables.Dispose();

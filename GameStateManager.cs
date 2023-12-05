@@ -1,27 +1,20 @@
-using TuringLikePatterns.Models;
-using TuringLikePatterns.Mutations;
-
 namespace TuringLikePatterns;
 
-internal sealed class GameStateManager(
-    GameTileField tileField,
-    GameTicker ticker,
-    IEnumerable<IMutationGenerator> mutationGenerators)
+internal interface ITickPhase
+{
+    void RunPhase();
+}
+
+internal sealed class GameStateManager(IEnumerable<ITickPhase> phases)
 {
     internal event EventHandler<EventArgs>? GameTickPassed;
 
-    private readonly List<IGameStateMutation> _tempMutationList = [];
+    private readonly IReadOnlyList<ITickPhase> _phases = phases.ToList();
 
     internal void Tick()
     {
-        _tempMutationList.AddRange(mutationGenerators.SelectMany(mg => mg.GetMutations()));
-        foreach (var mutation in _tempMutationList)
-        {
-            mutation.Apply(tileField, ticker);
-            mutation.Dispose();
-        }
-
-        _tempMutationList.Clear();
+        foreach (var phase in _phases)
+            phase.RunPhase();
 
         GameTickPassed?.Invoke(null, EventArgs.Empty);
     }

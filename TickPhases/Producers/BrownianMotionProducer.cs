@@ -1,11 +1,17 @@
+using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.Models;
+using TuringLikePatterns.TickPhases.Mutations;
 
-namespace TuringLikePatterns.Mutations;
+namespace TuringLikePatterns.TickPhases.Producers;
 
-internal sealed class BrownianMotionMutationGenerator(GameTileField tileField, float threshold, float portionToSpread)
-    : IMutationGenerator
+internal sealed class BrownianMotionProducer(
+    GameTileField tileField,
+    ObjectPool<AddQuantityMutation> pool,
+    float threshold,
+    float portionToSpread)
+    : PoolingMutationProducer<AddQuantityMutation>(pool)
 {
-    public IEnumerable<IGameStateMutation> GetMutations()
+    public override IEnumerable<AddQuantityMutation> ProduceMutations()
     {
         foreach (var (position, tile) in tileField)
         foreach (var (quantity, currentAmount) in tile.Raw)
@@ -23,10 +29,10 @@ internal sealed class BrownianMotionMutationGenerator(GameTileField tileField, f
                 //    continue;
 
                 amountToSpread += amountPerNeighbor;
-                yield return AddQuantityMutation.Get(neighborPos, quantity, amountPerNeighbor);
+                yield return Pool.GetAddQuantity(neighborPos, quantity, amountPerNeighbor);
             }
 
-            yield return AddQuantityMutation.Get(position, quantity, -amountToSpread);
+            yield return Pool.GetAddQuantity(position, quantity, -amountToSpread);
         }
     }
 }

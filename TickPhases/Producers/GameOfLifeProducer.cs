@@ -1,18 +1,20 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.Models;
+using TuringLikePatterns.TickPhases.Mutations;
 
-namespace TuringLikePatterns.Mutations;
+namespace TuringLikePatterns.TickPhases.Producers;
 
-internal sealed class ConwaysGameOfLifeMutationGenerator(
+internal sealed class GameOfLifeProducer(
     [FromKeyedServices("Conway's life")] Quantity life,
-    ILogger<ConwaysGameOfLifeMutationGenerator> logger,
+    ILogger<GameOfLifeProducer> logger,
     GameTileField tileField,
-    GameBounds bounds
-)
-    : IMutationGenerator
+    GameBounds bounds,
+    ObjectPool<AddQuantityMutation> pool)
+    : PoolingMutationProducer<AddQuantityMutation>(pool)
 {
-    public IEnumerable<IGameStateMutation> GetMutations()
+    public override IEnumerable<AddQuantityMutation> ProduceMutations()
     {
         for (var x = bounds.TopLeft.Value.X - 1; x <= bounds.BottomRight.Value.X + 1; x++)
         for (var y = bounds.TopLeft.Value.Y - 1; y <= bounds.BottomRight.Value.Y + 1; y++)
@@ -28,15 +30,15 @@ internal sealed class ConwaysGameOfLifeMutationGenerator(
             {
                 case (true, < 2):
                     logger.LogTrace("{Position} dies because {Neighbors}<2", currentPosition, aliveNeighbors);
-                    yield return AddQuantityMutation.Get(currentPosition, life, -currentLifeAmount);
+                    yield return Pool.GetAddQuantity(currentPosition, life, -currentLifeAmount);
                     break;
                 case (true, > 3):
                     logger.LogTrace("{Position} dies because {Neighbors}>3", currentPosition, aliveNeighbors);
-                    yield return AddQuantityMutation.Get(currentPosition, life, -currentLifeAmount);
+                    yield return Pool.GetAddQuantity(currentPosition, life, -currentLifeAmount);
                     break;
                 case (false, 3):
                     logger.LogTrace("{Position} born because {Neighbors}=3", currentPosition, aliveNeighbors);
-                    yield return AddQuantityMutation.Get(currentPosition, life, 1);
+                    yield return Pool.GetAddQuantity(currentPosition, life, 1);
                     break;
                 default:
                     logger.LogTrace("{Position} no change for ({Alive}, {Neighbors})", currentPosition, alive,
