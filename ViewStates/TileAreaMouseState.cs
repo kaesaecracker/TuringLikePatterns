@@ -1,5 +1,5 @@
 using System.Reactive.Subjects;
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 
 namespace TuringLikePatterns.ViewStates;
 

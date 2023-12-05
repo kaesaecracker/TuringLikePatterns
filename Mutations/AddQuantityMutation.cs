@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 
 namespace TuringLikePatterns.Mutations;
 

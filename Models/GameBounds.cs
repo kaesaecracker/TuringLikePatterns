@@ -1,7 +1,7 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace TuringLikePatterns.GameState;
+namespace TuringLikePatterns.Models;
 
 internal sealed class GameBounds : IObservable<(GamePosition TopLeft, GamePosition BottomRight)>
 {

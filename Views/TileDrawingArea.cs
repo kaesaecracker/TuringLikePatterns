@@ -2,7 +2,7 @@ using Gdk;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.Gtk;
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 using TuringLikePatterns.ViewStates;
 
 namespace TuringLikePatterns.Views;

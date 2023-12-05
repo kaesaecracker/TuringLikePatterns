@@ -3,7 +3,7 @@ using GLib;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TuringLikePatterns;
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 using TuringLikePatterns.Mutations;
 using TuringLikePatterns.Views;
 using TuringLikePatterns.ViewStates;

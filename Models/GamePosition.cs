@@ -1,4 +1,4 @@
-namespace TuringLikePatterns.GameState;
+namespace TuringLikePatterns.Models;
 
 internal readonly record struct GamePosition(long X, long Y)
 {

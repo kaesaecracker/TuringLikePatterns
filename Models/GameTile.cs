@@ -1,4 +1,4 @@
-namespace TuringLikePatterns.GameState;
+namespace TuringLikePatterns.Models;
 
 internal sealed class GameTile
 {

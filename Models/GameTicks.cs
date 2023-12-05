@@ -1,4 +1,4 @@
-namespace TuringLikePatterns.GameState;
+namespace TuringLikePatterns.Models;
 
 public class GameTicker
 {

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 
 namespace TuringLikePatterns.Mutations;
 

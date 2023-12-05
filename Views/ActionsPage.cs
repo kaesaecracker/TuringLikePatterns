@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reactive.Disposables;
 using Microsoft.Extensions.Logging;
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 using TuringLikePatterns.Mutations;
 using TuringLikePatterns.ViewStates;
 

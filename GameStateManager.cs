@@ -1,4 +1,4 @@
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 using TuringLikePatterns.Mutations;
 
 namespace TuringLikePatterns;

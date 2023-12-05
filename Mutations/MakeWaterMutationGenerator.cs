@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 
 namespace TuringLikePatterns.Mutations;
 

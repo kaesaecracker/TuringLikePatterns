@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using TuringLikePatterns.GameState;
+using TuringLikePatterns.Models;
 using TuringLikePatterns.ViewStates;
 
 namespace TuringLikePatterns.Views;
