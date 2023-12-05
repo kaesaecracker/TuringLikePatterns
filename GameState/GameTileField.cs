@@ -8,10 +8,7 @@ internal sealed class GameTileField
     public GameTileField(GameBounds bounds, Dictionary<GamePosition, GameTile>? raw = null)
     {
         _bounds = bounds;
-
         _raw = raw ?? new Dictionary<GamePosition, GameTile>();
-        if (_raw.Count == 0)
-            return;
 
         foreach (var pos in _raw.Keys)
             _bounds.ExpandTo(pos);
@@ -35,9 +32,7 @@ internal sealed class GameTileField
         if (_raw.TryGetValue(position, out var result))
             return result;
 
-        var newTile = new GameTile();
-        this[position] = newTile;
-        return newTile;
+        return this[position] = new GameTile();
     }
 
     public IEnumerator<KeyValuePair<GamePosition, GameTile>> GetEnumerator() => _raw.GetEnumerator();

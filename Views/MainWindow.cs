@@ -1,3 +1,4 @@
+using Gdk;
 using Window = Gtk.Window;
 
 namespace TuringLikePatterns.Views;
@@ -11,6 +12,7 @@ internal sealed class MainWindow : Window
     {
         _drawingArea = drawingArea;
         DeleteEvent += (_, _) => Application.Quit();
+        DefaultSize = new Size(800, 400);
 
         var notebook = new Notebook();
         foreach (var toolPage in toolPages)

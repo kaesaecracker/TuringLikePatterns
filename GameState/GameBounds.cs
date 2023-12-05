@@ -1,12 +1,22 @@
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
 namespace TuringLikePatterns.GameState;
 
-internal sealed class GameBounds
+internal sealed class GameBounds : IObservable<(GamePosition TopLeft, GamePosition BottomRight)>
 {
     public BehaviorSubject<GamePosition> TopLeft { get; } = new(new GamePosition(-1, -1));
 
     public BehaviorSubject<GamePosition> BottomRight { get; } = new(new GamePosition(1, 1));
+
+    private readonly IObservable<(GamePosition, GamePosition)> _combinedObservable;
+
+    public GameBounds()
+    {
+        _combinedObservable = Observable
+            .CombineLatest(TopLeft, BottomRight)
+            .Select(gamePositions => (gamePositions[0], gamePositions[1]));
+    }
 
     public void ExpandTo(GamePosition pos)
     {
@@ -26,4 +36,7 @@ internal sealed class GameBounds
         if (br != BottomRight.Value)
             BottomRight.OnNext(br);
     }
+
+    public IDisposable Subscribe(IObserver<(GamePosition, GamePosition)> observer) =>
+        _combinedObservable.Subscribe(observer);
 }

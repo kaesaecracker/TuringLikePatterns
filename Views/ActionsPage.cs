@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Reactive.Disposables;
 using Microsoft.Extensions.Logging;
 using TuringLikePatterns.GameState;
 using TuringLikePatterns.Mutations;
@@ -9,11 +10,12 @@ namespace TuringLikePatterns.Views;
 
 internal sealed class ActionsPage : IToolsPage, IDisposable
 {
-    private readonly Grid _grid;
+    private readonly Grid _grid = new();
     private readonly GameStateManager _gameStateManager;
     private readonly ManualMutationQueue _manualMutationQueue;
     private readonly ImmutableArray<Quantity> _quantities;
     private readonly ILogger<ActionsPage> _logger;
+    private readonly CompositeDisposable _disposables;
 
     private int _ticksPerClick = 1;
     private Quantity _selectedQuantity;
@@ -33,7 +35,6 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
         _gameStateManager = gameStateManager;
         _manualMutationQueue = manualMutationQueue;
         _quantities = quantities.ToImmutableArray();
-        _grid = new Grid();
 
         var currentRow = 0;
         var tpcSpinner = new SpinButton(1, 1000, 1);
@@ -56,10 +57,13 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
         _grid.Attach(quantitySelect, 1, currentRow++, 1, 1);
 
         quantitySelect.Changed += QuantitySelectOnChanged;
-        drawingAreaMouseState.RightClickTile.Subscribe(DrawingAreaOnTileRightClick);
         tickButton.Clicked += OnTickButtonClicked;
         amountSpinner.Changed += AmountSpinnerOnChanged;
         tpcSpinner.Changed += TpcSpinnerOnChanged;
+
+        drawingAreaMouseState.RightClickTile.Subscribe(DrawingAreaOnTileRightClick);
+
+        _disposables = new CompositeDisposable(_grid, tpcSpinner, tickButton, quantitySelect, amountSpinner);
     }
 
     private void TpcSpinnerOnChanged(object? sender, EventArgs e)
@@ -75,6 +79,7 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
         var spinner = sender as SpinButton;
         Trace.Assert(spinner != null);
 
+        // TODO: this does not fire when value is changed by typing instead of +/- buttons
         _selectedAmount = (float)spinner.Value;
         _logger.LogDebug("changed to {SelectedAmount}", _selectedAmount);
     }
@@ -97,8 +102,5 @@ internal sealed class ActionsPage : IToolsPage, IDisposable
         _manualMutationQueue.Enqueue(AddQuantityMutation.Get(position, _selectedQuantity, _selectedAmount));
     }
 
-    public void Dispose()
-    {
-        _grid.Dispose();
-    }
+    public void Dispose() => _disposables.Dispose();
 }

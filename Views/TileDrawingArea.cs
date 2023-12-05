@@ -17,7 +17,6 @@ internal sealed class TileDrawingArea : SKDrawingArea
     private readonly Dictionary<Quantity, SKPaint> _quantityPaints;
     private readonly ILogger _logger;
     private readonly ZoomState _zoomState;
-    private readonly TileAreaMouseState _mouseState;
     private readonly GameBounds _gameBounds;
     private readonly GameTileField _field;
 
@@ -33,7 +32,6 @@ internal sealed class TileDrawingArea : SKDrawingArea
         _logger = logger;
         _stateManager = stateManager;
         _zoomState = zoomState;
-        _mouseState = mouseState;
         _gameBounds = gameBounds;
         _field = field;
 
@@ -58,10 +56,10 @@ internal sealed class TileDrawingArea : SKDrawingArea
             switch (args.Event.Button)
             {
                 case 1:
-                    _mouseState.LeftClickTile.OnNext(gamePosition);
+                    mouseState.LeftClickTile.OnNext(gamePosition);
                     break;
                 case 3:
-                    _mouseState.RightClickTile.OnNext(gamePosition);
+                    mouseState.RightClickTile.OnNext(gamePosition);
                     break;
                 default:
                     _logger.LogDebug("unhandled mouse button {Button}", args.Event.Button);
@@ -71,7 +69,7 @@ internal sealed class TileDrawingArea : SKDrawingArea
         MotionNotifyEvent += (o, args) =>
         {
             var gamePosition = CanvasPointToGamePosition(args.Event.X, args.Event.Y);
-            _mouseState.HoveredTile.OnNext(gamePosition);
+            mouseState.HoveredTile.OnNext(gamePosition);
         };
         //ConfigureEvent += OnConfigureEvent;
 
@@ -155,7 +153,3 @@ internal sealed class TileDrawingArea : SKDrawingArea
         _quantityPaints.Clear();
     }
 }
-
-internal sealed record class TileClickEventArgs(GamePosition Position);
-
-internal sealed record class HoverTileChangeEventArgs(GamePosition Position);
