@@ -11,7 +11,6 @@ public interface IMutationProducer<out TMut>
 }
 
 public interface IMutationApplier<in TMut>
-    where TMut : Mutation
 {
     public void ApplyMutation(TMut mutation);
 }

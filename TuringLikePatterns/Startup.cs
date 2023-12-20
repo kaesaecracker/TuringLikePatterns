@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TuringLikePatterns.GameOfLife;
 using TuringLikePatterns.Models;
 using TuringLikePatterns.TickPhases.Appliers;
 using TuringLikePatterns.TickPhases.Mutations;
@@ -15,6 +16,8 @@ public static class Startup
     internal static ServiceProvider ConfigureServices()
     {
         return new ServiceCollection()
+            .AddGameOfLife()
+
             // Data
             .AddQuantity(new Quantity("water", SKColors.Aqua))
             .AddQuantity(new Quantity("hydrogen", SKColors.Blue))
