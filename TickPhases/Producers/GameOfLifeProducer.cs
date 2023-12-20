@@ -40,10 +40,6 @@ internal sealed class GameOfLifeProducer(
                     logger.LogTrace("{Position} born because {Neighbors}=3", currentPosition, aliveNeighbors);
                     yield return Pool.GetAddQuantity(currentPosition, life, 1);
                     break;
-                default:
-                    logger.LogTrace("{Position} no change for ({Alive}, {Neighbors})", currentPosition, alive,
-                        aliveNeighbors);
-                    break;
             }
         }
     }

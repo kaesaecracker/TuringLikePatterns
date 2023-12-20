@@ -19,6 +19,8 @@ internal sealed record class AddQuantityMutation : Mutation, IResettable
 
     public void SetValues(GamePosition position, Quantity quantityToChange, float amount)
     {
+        ArgumentOutOfRangeException.ThrowIfZero(amount);
+
         Position = position;
         QuantityToChange = quantityToChange;
         Amount = amount;

@@ -55,11 +55,11 @@ public static class Startup
             .AddSingleton<TickIncrementApplier>()
 
             // Phases
-            .AddTickPhase<ManualAddQuantityProducer, AddQuantityMutation, AddQuantityApplier>()
+            .AddTickPhase<BrownianMotionProducer, AddQuantityMutation, AddQuantityApplier>(1f, 0.01f)
             .AddTickPhase<GameOfLifeProducer, AddQuantityMutation, AddQuantityApplier>()
             .AddTickPhase<MakeWaterProducer, AddQuantityMutation, AddQuantityApplier>(1f, 1f / 3f)
-            .AddTickPhase<BrownianMotionProducer, AddQuantityMutation, AddQuantityApplier>(1f, 0.01f)
             .AddTickPhase<TickIncrementProducer, TickIncrementMutation, TickIncrementApplier>()
+            .AddTickPhase<ManualAddQuantityProducer, AddQuantityMutation, AddQuantityApplier>()
 
             // State
             .AddSingleton<ZoomState>()
