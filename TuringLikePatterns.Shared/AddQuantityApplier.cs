@@ -3,7 +3,7 @@ using TuringLikePatterns.TickPhases.Mutations;
 
 namespace TuringLikePatterns.TickPhases.Appliers;
 
-internal sealed class AddQuantityApplier(GameTileField tileField) : IMutationApplier<AddQuantityMutation>
+public sealed class AddQuantityApplier(GameTileField tileField) : IMutationApplier<AddQuantityMutation>
 {
     public void ApplyMutation(AddQuantityMutation mutation)
     {

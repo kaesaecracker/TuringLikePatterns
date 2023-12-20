@@ -1,30 +1,31 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.TickPhases;
 
 namespace TuringLikePatterns;
 
-internal static class DependencyInjectionExtensions
+public static class DependencyInjectionExtensions
 {
-    internal static IServiceCollection AddQuantity(this IServiceCollection serviceCollection, Quantity instance) =>
+    public static IServiceCollection AddQuantity(this IServiceCollection serviceCollection, Quantity instance) =>
         serviceCollection
             .AddSingleton(instance)
             .AddKeyedSingleton(instance.Name, instance);
 
-    internal static IServiceCollection AddStatistic(this IServiceCollection serviceCollection, string name,
+    public static IServiceCollection AddStatistic(this IServiceCollection serviceCollection, string name,
         Func<IServiceProvider, Func<string>> updateFunProvider)
     {
         return serviceCollection.AddSingleton<Statistic>(sp => new Statistic(name, updateFunProvider(sp)));
     }
 
-    internal static IServiceCollection AddTickPhase<TProducer, TMutation, TConsumer>(
+    public static IServiceCollection AddTickPhase<TProducer, TMutation, TConsumer>(
         this IServiceCollection serviceCollection)
         where TProducer : IMutationProducer<TMutation>
         where TMutation : Mutation
         where TConsumer : IMutationApplier<TMutation> =>
         serviceCollection.AddSingleton<ITickPhase, TickPhase<TProducer, TMutation, TConsumer>>();
 
-    internal static IServiceCollection AddTickPhase<TProducer, TMutation, TApplier>(
+    public static IServiceCollection AddTickPhase<TProducer, TMutation, TApplier>(
         this IServiceCollection serviceCollection, params object[] parameters)
         where TProducer : IMutationProducer<TMutation>
         where TMutation : Mutation
@@ -38,7 +39,7 @@ internal static class DependencyInjectionExtensions
         });
     }
 
-    internal static IServiceCollection AddInfiniteObjectPool<T>(this IServiceCollection serviceCollection)
+    public static IServiceCollection AddInfiniteObjectPool<T>(this IServiceCollection serviceCollection)
         where T : class, new()
     {
         return serviceCollection.AddSingleton<ObjectPool<T>>(sp =>

@@ -1,9 +1,10 @@
+using System;
 using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.Models;
 
 namespace TuringLikePatterns.TickPhases.Mutations;
 
-internal sealed record class AddQuantityMutation : Mutation, IResettable
+public sealed record class AddQuantityMutation : Mutation, IResettable
 {
     private Quantity? _quantityToChange;
 

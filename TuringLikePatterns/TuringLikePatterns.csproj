@@ -31,4 +31,9 @@
         <EmbeddedResource Include="**\*.glade" LogicalName="%(Filename)%(Extension)"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\TuringLikePatterns.GameOfLife\TuringLikePatterns.GameOfLife.csproj"/>
+        <ProjectReference Include="..\TuringLikePatterns.Shared\TuringLikePatterns.Shared.csproj"/>
+    </ItemGroup>
+
 </Project>

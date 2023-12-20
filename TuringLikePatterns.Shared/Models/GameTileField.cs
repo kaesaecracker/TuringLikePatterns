@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
+
 namespace TuringLikePatterns.Models;
 
-internal sealed class GameTileField
+public sealed class GameTileField
 {
     private readonly Dictionary<GamePosition, GameTile> _raw;
     private readonly GameBounds _bounds;

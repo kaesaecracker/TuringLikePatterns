@@ -1,6 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace TuringLikePatterns.Models;
 
-internal sealed class GameTile
+public sealed class GameTile
 {
     public Dictionary<Quantity, float> Raw { get; } = new();
 
@@ -10,7 +13,7 @@ internal sealed class GameTile
         set => Raw[q] = value;
     }
 
-    internal Quantity? GetHighestQuantity() => Raw.Count != 0 ? Raw.MaxBy(pair => pair.Value).Key : null;
+    public Quantity? GetHighestQuantity() => Raw.Count != 0 ? Raw.MaxBy(pair => pair.Value).Key : null;
 
     public string ToDebugString() =>
         $"{{{string.Join(",", Raw.Select(kv => kv.Key + "=" + kv.Value).ToArray())}}}";

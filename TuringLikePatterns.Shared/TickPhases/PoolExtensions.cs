@@ -4,7 +4,7 @@ using TuringLikePatterns.TickPhases.Mutations;
 
 namespace TuringLikePatterns.TickPhases;
 
-internal static class PoolExtensions
+public static class PoolExtensions
 {
     public static AddQuantityMutation GetAddQuantity(this ObjectPool<AddQuantityMutation> pool,
         GamePosition position, Quantity quantityToChange, float amount)

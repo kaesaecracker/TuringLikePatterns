@@ -1,6 +1,8 @@
+using System.Collections.Generic;
+
 namespace TuringLikePatterns.Models;
 
-internal readonly record struct GamePosition(long X, long Y)
+public readonly record struct GamePosition(long X, long Y)
 {
     internal GamePosition Top() => this with { Y = Y - 1 };
 
@@ -10,7 +12,7 @@ internal readonly record struct GamePosition(long X, long Y)
 
     internal GamePosition Right() => this with { X = X + 1 };
 
-    internal IEnumerable<GamePosition> FarNeighborPositions()
+    public IEnumerable<GamePosition> FarNeighborPositions()
     {
         var temp = Top();
         yield return temp;

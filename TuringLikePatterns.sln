@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringLikePatterns", "TuringLikePatterns/TuringLikePatterns.csproj", "{DEA0B04F-BD87-46DE-8870-606A03992B24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringLikePatterns.GameOfLife", "TuringLikePatterns.GameOfLife\TuringLikePatterns.GameOfLife.csproj", "{2CA3D7BD-795E-48E0-96DE-B102C6069845}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringLikePatterns.Shared", "TuringLikePatterns.Shared\TuringLikePatterns.Shared.csproj", "{687302AA-552D-421D-9C77-E1639B6B037D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{DEA0B04F-BD87-46DE-8870-606A03992B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEA0B04F-BD87-46DE-8870-606A03992B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEA0B04F-BD87-46DE-8870-606A03992B24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CA3D7BD-795E-48E0-96DE-B102C6069845}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CA3D7BD-795E-48E0-96DE-B102C6069845}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CA3D7BD-795E-48E0-96DE-B102C6069845}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CA3D7BD-795E-48E0-96DE-B102C6069845}.Release|Any CPU.Build.0 = Release|Any CPU
+		{687302AA-552D-421D-9C77-E1639B6B037D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687302AA-552D-421D-9C77-E1639B6B037D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687302AA-552D-421D-9C77-E1639B6B037D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687302AA-552D-421D-9C77-E1639B6B037D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

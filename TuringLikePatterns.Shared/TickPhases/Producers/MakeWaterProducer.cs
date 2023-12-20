@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.Models;
@@ -5,7 +7,7 @@ using TuringLikePatterns.TickPhases.Mutations;
 
 namespace TuringLikePatterns.TickPhases.Producers;
 
-internal sealed class MakeWaterProducer(
+public sealed class MakeWaterProducer(
     [FromKeyedServices(nameof(hydrogen))] Quantity hydrogen,
     [FromKeyedServices(nameof(water))] Quantity water,
     [FromKeyedServices(nameof(oxygen))] Quantity oxygen,

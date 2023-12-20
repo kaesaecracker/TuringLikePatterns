@@ -1,9 +1,10 @@
+using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
 namespace TuringLikePatterns.Models;
 
-internal sealed class GameBounds : IObservable<(GamePosition TopLeft, GamePosition BottomRight)>
+public sealed class GameBounds : IObservable<(GamePosition TopLeft, GamePosition BottomRight)>
 {
     public BehaviorSubject<GamePosition> TopLeft { get; } = new(new GamePosition(-1, -1));
 

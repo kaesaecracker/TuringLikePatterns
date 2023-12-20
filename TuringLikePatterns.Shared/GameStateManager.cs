@@ -1,17 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace TuringLikePatterns;
 
-internal interface ITickPhase
+public interface ITickPhase
 {
     void RunPhase();
 }
 
-internal sealed class GameStateManager(IEnumerable<ITickPhase> phases)
+public sealed class GameStateManager(IEnumerable<ITickPhase> phases)
 {
-    internal event EventHandler<EventArgs>? GameTickPassed;
+    public event EventHandler<EventArgs>? GameTickPassed;
 
     private readonly IReadOnlyList<ITickPhase> _phases = phases.ToList();
 
-    internal void Tick()
+    public void Tick()
     {
         foreach (var phase in _phases)
             phase.RunPhase();

@@ -1,10 +1,11 @@
+using System.Collections.Generic;
 using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.Models;
 using TuringLikePatterns.TickPhases.Mutations;
 
 namespace TuringLikePatterns.TickPhases.Producers;
 
-internal sealed class BrownianMotionProducer(
+public sealed class BrownianMotionProducer(
     GameTileField tileField,
     ObjectPool<AddQuantityMutation> pool,
     float threshold,

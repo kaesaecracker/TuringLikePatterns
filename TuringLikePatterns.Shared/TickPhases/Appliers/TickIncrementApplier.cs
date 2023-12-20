@@ -4,7 +4,7 @@ using TuringLikePatterns.TickPhases.Mutations;
 
 namespace TuringLikePatterns.TickPhases.Appliers;
 
-internal sealed class TickIncrementApplier(GameTicker ticker, ILogger<GameTicker> logger)
+public sealed class TickIncrementApplier(GameTicker ticker, ILogger<GameTicker> logger)
     : IMutationApplier<TickIncrementMutation>
 {
     public void ApplyMutation(TickIncrementMutation mutation)

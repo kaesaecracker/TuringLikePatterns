@@ -1,10 +1,11 @@
+using System.Collections.Generic;
 using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.Models;
 using TuringLikePatterns.TickPhases.Mutations;
 
 namespace TuringLikePatterns.TickPhases.Producers;
 
-internal sealed class ManualAddQuantityProducer(ObjectPool<AddQuantityMutation> pool)
+public sealed class ManualAddQuantityProducer(ObjectPool<AddQuantityMutation> pool)
     : PoolingMutationProducer<AddQuantityMutation>(pool)
 {
     private readonly Queue<AddQuantityMutation> _queuedMutations = new();

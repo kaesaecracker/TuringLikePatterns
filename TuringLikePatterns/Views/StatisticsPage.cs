@@ -20,7 +20,7 @@ internal sealed class StatisticsPage : IToolsPage, IDisposable
     {
         _gameStateManager = gameStateManager;
         _field = field;
-        _statistics = allStatistics.ToList();
+        _statistics = allStatistics.ToDictionary(s => s, s => new Label(s.TextFunc()));
 
         _cursorStatistics = allQuantities
             .Select(q => new CursorStatistic(q, new Label()))
@@ -55,7 +55,7 @@ internal sealed class StatisticsPage : IToolsPage, IDisposable
     private readonly Label _positionLabel = new("<Position>");
 
     private readonly List<CursorStatistic> _cursorStatistics;
-    private readonly List<Statistic> _statistics;
+    private readonly Dictionary<Statistic, Label> _statistics;
 
     private void OnDrawAreaHoverTileChange(GamePosition position)
     {
@@ -68,18 +68,18 @@ internal sealed class StatisticsPage : IToolsPage, IDisposable
 
     private void OnGameStateManagerTickPassed(object? _, EventArgs eventArgs)
     {
-        foreach (var stat in _statistics)
-            stat.Label.Text = stat.TextFunc();
+        foreach (var (statistic, label) in _statistics)
+            label.Text = statistic.TextFunc();
     }
 
     private void AttachGlobalStatistics()
     {
-        foreach (var stat in _statistics)
+        foreach (var (statistic, label) in _statistics)
         {
-            _grid.Attach(new Label(stat.Name), 0, _currentRow, 1, 1);
+            _grid.Attach(new Label(statistic.Name), 0, _currentRow, 1, 1);
 
-            stat.Label.Text = stat.TextFunc();
-            _grid.Attach(stat.Label, 1, _currentRow++, 1, 1);
+            label.Text = statistic.TextFunc();
+            _grid.Attach(label, 1, _currentRow++, 1, 1);
         }
     }
 

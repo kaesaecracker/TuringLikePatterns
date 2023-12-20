@@ -1,10 +1,13 @@
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 using TuringLikePatterns.Models;
+using TuringLikePatterns.TickPhases;
 using TuringLikePatterns.TickPhases.Mutations;
 
-namespace TuringLikePatterns.TickPhases.Producers;
+namespace TuringLikePatterns.GameOfLife;
 
 internal sealed class GameOfLifeProducer(
     [FromKeyedServices("Conway's life")] Quantity life,
