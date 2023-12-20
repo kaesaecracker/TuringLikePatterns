@@ -1,6 +1,6 @@
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Models;
-using TuringLikePatterns.TickPhases;
+using TuringLikePatterns.Shared.Models;
+using TuringLikePatterns.Shared.TickPhases;
 
 namespace TuringLikePatterns.GameOfLife;
 

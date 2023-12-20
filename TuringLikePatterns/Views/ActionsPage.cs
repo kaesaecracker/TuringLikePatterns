@@ -2,9 +2,9 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reactive.Disposables;
 using Microsoft.Extensions.Logging;
-using TuringLikePatterns.Models;
-using TuringLikePatterns.TickPhases.Mutations;
-using TuringLikePatterns.TickPhases.Producers;
+using TuringLikePatterns.Shared;
+using TuringLikePatterns.Shared.Models;
+using TuringLikePatterns.Shared.TickPhases.Producers;
 using TuringLikePatterns.ViewStates;
 
 namespace TuringLikePatterns.Views;

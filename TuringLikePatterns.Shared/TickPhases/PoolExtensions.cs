@@ -1,8 +1,8 @@
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Models;
-using TuringLikePatterns.TickPhases.Mutations;
+using TuringLikePatterns.Shared.Models;
+using TuringLikePatterns.Shared.TickPhases.Mutations;
 
-namespace TuringLikePatterns.TickPhases;
+namespace TuringLikePatterns.Shared.TickPhases;
 
 public static class PoolExtensions
 {

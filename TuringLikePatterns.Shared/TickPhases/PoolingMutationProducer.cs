@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.ObjectPool;
 
-namespace TuringLikePatterns.TickPhases;
+namespace TuringLikePatterns.Shared.TickPhases;
 
 public abstract class PoolingMutationProducer<TMut>(ObjectPool<TMut> pool) : IMutationProducer<TMut>
     where TMut : Mutation

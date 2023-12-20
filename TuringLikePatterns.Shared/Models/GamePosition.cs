@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace TuringLikePatterns.Models;
+namespace TuringLikePatterns.Shared.Models;
 
 public readonly record struct GamePosition(long X, long Y)
 {

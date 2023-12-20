@@ -1,9 +1,9 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.TickPhases;
+using TuringLikePatterns.Shared.TickPhases;
 
-namespace TuringLikePatterns;
+namespace TuringLikePatterns.Shared;
 
 public static class DependencyInjectionExtensions
 {

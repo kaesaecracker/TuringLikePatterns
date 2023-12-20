@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TuringLikePatterns.Models;
+namespace TuringLikePatterns.Shared.Models;
 
 public sealed class GameTile
 {

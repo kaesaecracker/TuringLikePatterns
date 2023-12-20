@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace TuringLikePatterns.TickPhases;
+namespace TuringLikePatterns.Shared.TickPhases;
 
 public abstract record class Mutation;
 

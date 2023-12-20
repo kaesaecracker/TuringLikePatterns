@@ -1,5 +1,5 @@
 using System.Reactive.Subjects;
-using TuringLikePatterns.Models;
+using TuringLikePatterns.Shared.Models;
 
 namespace TuringLikePatterns.ViewStates;
 
