@@ -11,7 +11,15 @@ public sealed class GameGrid<T>(GameBounds gameBounds)
         set
         {
             ArgumentNullException.ThrowIfNull(value);
-            _raw[position] = value;
+            if (EqualityComparer<T>.Default.Equals(value, default))
+            {
+                _raw.Remove(position);
+            }
+            else
+            {
+                _raw[position] = value;
+                gameBounds.ExpandTo(position);
+            }
         }
     }
 }

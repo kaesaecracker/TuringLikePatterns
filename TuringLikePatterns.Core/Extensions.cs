@@ -1,16 +1,13 @@
+using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
+using TuringLikePatterns.Core.Models;
 using TuringLikePatterns.Core.TickPhases;
 
 namespace TuringLikePatterns.Core;
 
-public static class DependencyInjectionExtensions
+public static class Extensions
 {
-    public static IServiceCollection AddQuantity(this IServiceCollection serviceCollection, Quantity instance) =>
-        serviceCollection
-            .AddSingleton(instance)
-            .AddKeyedSingleton(instance.Name, instance);
-
     public static IServiceCollection AddStatistic(this IServiceCollection serviceCollection, string name,
         Func<IServiceProvider, Func<string>> updateFunProvider)
     {
@@ -43,5 +40,50 @@ public static class DependencyInjectionExtensions
     {
         return serviceCollection.AddSingleton<ObjectPool<T>>(sp =>
             new DefaultObjectPool<T>(new DefaultPooledObjectPolicy<T>(), int.MaxValue));
+    }
+
+    public static IServiceCollection AddCoreStatistics(this IServiceCollection serviceCollection)
+    {
+        return serviceCollection
+            .AddStatistic("Top left", sp =>
+            {
+                var bounds = sp.GetRequiredService<GameBounds>();
+                return () => bounds.TopLeft.Value.ToString();
+            })
+            .AddStatistic("Bottom right", sp =>
+            {
+                var bounds = sp.GetRequiredService<GameBounds>();
+                return () => bounds.BottomRight.Value.ToString();
+            })
+            .AddStatistic("Ticks", sp =>
+            {
+                var ticker = sp.GetRequiredService<GameTicker>();
+                return () => ticker.TickCount.ToString();
+            })
+            .AddStatistic("Tiles live", sp =>
+            {
+                var field = sp.GetRequiredService<GameTileField>();
+                return () => field.NonEmptyCount.ToString(CultureInfo.CurrentCulture);
+            });
+    }
+
+    public static IServiceCollection AddTicking(this IServiceCollection serviceCollection)
+    {
+        return serviceCollection
+            .AddSingleton<TickIncrementProducer>()
+            .AddSingleton<TickIncrementApplier>()
+            .AddTickPhase<TickIncrementProducer, TickIncrementMutation, TickIncrementApplier>();
+    }
+
+    public static IServiceCollection AddCore(this IServiceCollection serviceCollection)
+    {
+        return serviceCollection
+            .AddTicking()
+            .AddCoreStatistics()
+
+            .AddSingleton<GameBounds>()
+            .AddSingleton<GameTileField>()
+            .AddSingleton<GameTicker>()
+            .AddSingleton<GameStateManager>();
     }
 }
