@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using TuringLikePatterns.Shared.TickPhases.Mutations;
 
-namespace TuringLikePatterns.Shared.TickPhases.Producers;
+namespace TuringLikePatterns.Shared.TickPhases;
 
 public sealed class TickIncrementProducer : IMutationProducer<TickIncrementMutation>
 {

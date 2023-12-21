@@ -6,7 +6,7 @@ namespace TuringLikePatterns.Shared.TickPhases;
 public abstract class PoolingMutationProducer<TMut>(ObjectPool<TMut> pool) : IMutationProducer<TMut>
     where TMut : Mutation
 {
-    protected internal ObjectPool<TMut> Pool { get; } = pool;
+    protected ObjectPool<TMut> Pool { get; } = pool;
 
     public abstract IEnumerable<TMut> ProduceMutations();
 

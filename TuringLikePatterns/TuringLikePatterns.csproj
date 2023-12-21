@@ -32,8 +32,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TuringLikePatterns.GameOfLife\TuringLikePatterns.GameOfLife.csproj"/>
         <ProjectReference Include="..\TuringLikePatterns.Shared\TuringLikePatterns.Shared.csproj"/>
+        <ProjectReference Include="..\TuringLikePatterns.GameOfLife\TuringLikePatterns.GameOfLife.csproj"/>
+        <ProjectReference Include="..\TuringLikePatterns.Chemistry\TuringLikePatterns.Chemistry.csproj"/>
     </ItemGroup>
 
 </Project>

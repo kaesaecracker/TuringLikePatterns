@@ -1,3 +1,3 @@
-namespace TuringLikePatterns.Shared.TickPhases.Mutations;
+namespace TuringLikePatterns.Shared.TickPhases;
 
 public sealed record class TickIncrementMutation : Mutation;

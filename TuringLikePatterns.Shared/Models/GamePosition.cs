@@ -32,7 +32,7 @@ public readonly record struct GamePosition(long X, long Y)
         yield return temp;
     }
 
-    internal IEnumerable<GamePosition> NearNeighborPositions()
+    public IEnumerable<GamePosition> NearNeighborPositions()
     {
         yield return Top();
         yield return Right();
