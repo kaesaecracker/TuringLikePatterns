@@ -1,8 +1,10 @@
 using System;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Shared.Models;
+using TuringLikePatterns.Core;
+using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.Core.TickPhases;
 
-namespace TuringLikePatterns.Shared.TickPhases.Mutations;
+namespace TuringLikePatterns.Chemistry;
 
 public sealed record class AddQuantityMutation : Mutation, IResettable
 {

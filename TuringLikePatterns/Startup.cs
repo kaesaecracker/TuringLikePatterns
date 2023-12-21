@@ -1,13 +1,11 @@
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TuringLikePatterns.Chemistry;
 using TuringLikePatterns.GameOfLife;
-using TuringLikePatterns.Shared;
-using TuringLikePatterns.Shared.Models;
-using TuringLikePatterns.Shared.TickPhases;
-using TuringLikePatterns.Shared.TickPhases.Appliers;
-using TuringLikePatterns.Shared.TickPhases.Mutations;
-using TuringLikePatterns.Shared.TickPhases.Producers;
+using TuringLikePatterns.Core;
+using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.Core.TickPhases;
 using TuringLikePatterns.Views;
 using TuringLikePatterns.ViewStates;
 

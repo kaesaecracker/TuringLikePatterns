@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringLikePatterns", "Turin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringLikePatterns.GameOfLife", "TuringLikePatterns.GameOfLife\TuringLikePatterns.GameOfLife.csproj", "{2CA3D7BD-795E-48E0-96DE-B102C6069845}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringLikePatterns.Shared", "TuringLikePatterns.Shared\TuringLikePatterns.Shared.csproj", "{687302AA-552D-421D-9C77-E1639B6B037D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringLikePatterns.Core", "TuringLikePatterns.Core\TuringLikePatterns.Core.csproj", "{687302AA-552D-421D-9C77-E1639B6B037D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringLikePatterns.Chemistry", "TuringLikePatterns.Chemistry\TuringLikePatterns.Chemistry.csproj", "{826A7A3D-0FB2-4FD4-A60B-3F04678D334F}"
 EndProject

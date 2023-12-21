@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Shared;
-using TuringLikePatterns.Shared.Models;
+using TuringLikePatterns.Core;
+using TuringLikePatterns.Core.Models;
 
 namespace TuringLikePatterns.GameOfLife;
 

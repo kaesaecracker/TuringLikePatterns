@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-
-namespace TuringLikePatterns.Shared.TickPhases;
+namespace TuringLikePatterns.Core.TickPhases;
 
 internal sealed class TickPhase<TProducer, TMut, TApplier>(
     TProducer producer,

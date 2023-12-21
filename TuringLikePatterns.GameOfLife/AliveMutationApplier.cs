@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using TuringLikePatterns.Shared.Models;
-using TuringLikePatterns.Shared.TickPhases;
+using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.Core.TickPhases;
 
 namespace TuringLikePatterns.GameOfLife;
 

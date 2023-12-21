@@ -3,8 +3,8 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Shared.Models;
-using TuringLikePatterns.Shared.TickPhases;
+using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.Core.TickPhases;
 
 namespace TuringLikePatterns.GameOfLife;
 

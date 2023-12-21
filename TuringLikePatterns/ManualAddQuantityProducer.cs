@@ -1,8 +1,8 @@
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Shared;
-using TuringLikePatterns.Shared.Models;
-using TuringLikePatterns.Shared.TickPhases;
-using TuringLikePatterns.Shared.TickPhases.Mutations;
+using TuringLikePatterns.Chemistry;
+using TuringLikePatterns.Core;
+using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.Core.TickPhases;
 
 namespace TuringLikePatterns;
 

@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace TuringLikePatterns.Shared.Models;
+namespace TuringLikePatterns.Core.Models;
 
 public sealed class GameTileField
 {

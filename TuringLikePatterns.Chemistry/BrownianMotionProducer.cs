@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Shared.Models;
-using TuringLikePatterns.Shared.TickPhases.Mutations;
+using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.Core.TickPhases;
 
-namespace TuringLikePatterns.Shared.TickPhases.Producers;
+namespace TuringLikePatterns.Chemistry;
 
 public sealed class BrownianMotionProducer(
     GameTileField tileField,

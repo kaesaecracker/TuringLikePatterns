@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Shared.Models;
-using TuringLikePatterns.Shared.TickPhases.Mutations;
+using TuringLikePatterns.Core;
+using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.Core.TickPhases;
 
-namespace TuringLikePatterns.Shared.TickPhases.Producers;
+namespace TuringLikePatterns.Chemistry;
 
 public sealed class MakeWaterProducer(
     [FromKeyedServices(nameof(hydrogen))] Quantity hydrogen,

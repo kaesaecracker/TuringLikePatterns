@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using TuringLikePatterns.Shared;
-using TuringLikePatterns.Shared.Models;
+using TuringLikePatterns.Core;
+using TuringLikePatterns.Core.Models;
 using TuringLikePatterns.ViewStates;
 
 namespace TuringLikePatterns.Views;

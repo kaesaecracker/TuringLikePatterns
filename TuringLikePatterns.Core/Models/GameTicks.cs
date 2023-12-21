@@ -1,4 +1,4 @@
-namespace TuringLikePatterns.Shared.Models;
+namespace TuringLikePatterns.Core.Models;
 
 public class GameTicker
 {

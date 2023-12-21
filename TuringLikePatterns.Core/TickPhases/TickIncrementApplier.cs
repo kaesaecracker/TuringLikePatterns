@@ -1,7 +1,6 @@
-using Microsoft.Extensions.Logging;
-using TuringLikePatterns.Shared.Models;
+using TuringLikePatterns.Core.Models;
 
-namespace TuringLikePatterns.Shared.TickPhases;
+namespace TuringLikePatterns.Core.TickPhases;
 
 public sealed class TickIncrementApplier(GameTicker ticker, ILogger<GameTicker> logger)
     : IMutationApplier<TickIncrementMutation>

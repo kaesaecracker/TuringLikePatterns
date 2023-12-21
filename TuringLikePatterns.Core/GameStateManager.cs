@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
-namespace TuringLikePatterns.Shared;
+namespace TuringLikePatterns.Core;
 
 public interface ITickPhase
 {

@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
+namespace TuringLikePatterns.Core.Models;
 
-namespace TuringLikePatterns.Shared.Models;
-
-public sealed class GameGrid<T> where T : struct
+public sealed class GameGrid<T>(GameBounds gameBounds)
+    where T : struct
 {
     private readonly Dictionary<GamePosition, T> _raw = new();
 
