@@ -2,6 +2,7 @@ using Gdk;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.Gtk;
+using TuringLikePatterns.API;
 using TuringLikePatterns.Core;
 using TuringLikePatterns.Core.Models;
 using TuringLikePatterns.ViewStates;
@@ -41,13 +42,13 @@ internal sealed class TileDrawingArea : SKDrawingArea
             quantity =>
             {
                 var paint = new SKPaint();
-                paint.Color = quantity.Color;
+                paint.Color = quantity.Color.ToSKColor();
                 paint.Style = SKPaintStyle.Fill;
                 return paint;
             });
 
-        _lastTopLeft = gameBounds.TopLeft.Value;
-        _lastBottomRight = gameBounds.BottomRight.Value;
+        _lastTopLeft = gameBounds.TopLeft;
+        _lastBottomRight = gameBounds.BottomRight;
 
         _stateManager.GameTickPassed += StateManagerGameTickPassed;
 
@@ -80,8 +81,8 @@ internal sealed class TileDrawingArea : SKDrawingArea
 
     private void StateManagerGameTickPassed(object? sender, EventArgs e)
     {
-        _lastTopLeft = _gameBounds.TopLeft.Value;
-        _lastBottomRight = _gameBounds.BottomRight.Value;
+        _lastTopLeft = _gameBounds.TopLeft;
+        _lastBottomRight = _gameBounds.BottomRight;
         QueueDraw();
     }
 

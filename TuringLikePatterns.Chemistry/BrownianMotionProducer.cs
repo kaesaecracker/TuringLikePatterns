@@ -1,21 +1,20 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Core.Models;
-using TuringLikePatterns.Core.TickPhases;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.Chemistry;
 
 public sealed class BrownianMotionProducer(
-    GameTileField tileField,
+    IGameTileField tileField,
     ObjectPool<AddQuantityMutation> pool,
     float threshold,
     float portionToSpread)
-    : PoolingMutationProducer<AddQuantityMutation>(pool)
+    : IPoolingMutationProducer<AddQuantityMutation>
 {
-    public override IEnumerable<AddQuantityMutation> ProduceMutations()
+    public IEnumerable<AddQuantityMutation> ProduceMutations()
     {
         foreach (var (position, tile) in tileField)
-        foreach (var (quantity, currentAmount) in tile.Raw)
+        foreach (var (quantity, currentAmount) in tile)
         {
             if (currentAmount < threshold)
                 continue;
@@ -30,10 +29,18 @@ public sealed class BrownianMotionProducer(
                 //    continue;
 
                 amountToSpread += amountPerNeighbor;
-                yield return Pool.GetAddQuantity(neighborPos, quantity, amountPerNeighbor);
+                yield return pool.GetAddQuantity(neighborPos, quantity, amountPerNeighbor);
             }
 
-            yield return Pool.GetAddQuantity(position, quantity, -amountToSpread);
+            yield return pool.GetAddQuantity(position, quantity, -amountToSpread);
         }
     }
+
+    public void Return(IEnumerable<AddQuantityMutation> mutations)
+    {
+        foreach (var mutation in mutations)
+            pool.Return(mutation);
+    }
+
+    public void Return(AddQuantityMutation mutation) => pool.Return(mutation);
 }

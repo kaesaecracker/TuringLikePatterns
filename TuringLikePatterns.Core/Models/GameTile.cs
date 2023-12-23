@@ -1,8 +1,10 @@
+using System.Collections;
 using System.Linq;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.Core.Models;
 
-public sealed class GameTile
+public sealed class GameTile: IGameTile
 {
     public Dictionary<Quantity, float> Raw { get; } = new();
 
@@ -16,4 +18,11 @@ public sealed class GameTile
 
     public string ToDebugString() =>
         $"{{{string.Join(",", Raw.Select(kv => kv.Key + "=" + kv.Value).ToArray())}}}";
+
+    public IEnumerator<(Quantity, float)> GetEnumerator()
+    {
+        return Raw.Select(kvp => (kvp.Key, kvp.Value)).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

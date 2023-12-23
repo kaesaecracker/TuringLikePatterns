@@ -1,10 +1,9 @@
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Core.Models;
-using TuringLikePatterns.Core.TickPhases;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.GameOfLife;
 
-public sealed record class AliveMutation : Mutation, IResettable
+public sealed record class AliveMutation : IMutation, IResettable
 {
     public bool TryReset() => true;
 

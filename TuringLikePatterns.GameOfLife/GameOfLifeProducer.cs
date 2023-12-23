@@ -3,23 +3,22 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Core.Models;
-using TuringLikePatterns.Core.TickPhases;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.GameOfLife;
 
 internal sealed class GameOfLifeProducer(
     ILogger<GameOfLifeProducer> logger,
     [FromKeyedServices(Constants.GameOfLife)]
-    GameGrid<bool> aliveGrid,
-    GameBounds bounds,
+    IGameGrid<bool> aliveGrid,
+    IGameBounds bounds,
     ObjectPool<AliveMutation> pool)
-    : PoolingMutationProducer<AliveMutation>(pool)
+    : IPoolingMutationProducer<AliveMutation>
 {
-    public override IEnumerable<AliveMutation> ProduceMutations()
+    public IEnumerable<AliveMutation> ProduceMutations()
     {
-        for (var x = bounds.TopLeft.Value.X - 1; x <= bounds.BottomRight.Value.X + 1; x++)
-        for (var y = bounds.TopLeft.Value.Y - 1; y <= bounds.BottomRight.Value.Y + 1; y++)
+        for (var x = bounds.TopLeft.X - 1; x <= bounds.BottomRight.X + 1; x++)
+        for (var y = bounds.TopLeft.Y - 1; y <= bounds.BottomRight.Y + 1; y++)
         {
             var currentPosition = new GamePosition(x, y);
 
@@ -31,17 +30,19 @@ internal sealed class GameOfLifeProducer(
             {
                 case (true, < 2):
                     logger.LogTrace("{Position} dies because {Neighbors}<2", currentPosition, aliveNeighbors);
-                    yield return Pool.GetAliveMutation(currentPosition, false);
+                    yield return pool.GetAliveMutation(currentPosition, false);
                     break;
                 case (true, > 3):
                     logger.LogTrace("{Position} dies because {Neighbors}>3", currentPosition, aliveNeighbors);
-                    yield return Pool.GetAliveMutation(currentPosition, false);
+                    yield return pool.GetAliveMutation(currentPosition, false);
                     break;
                 case (false, 3):
                     logger.LogTrace("{Position} born because {Neighbors}=3", currentPosition, aliveNeighbors);
-                    yield return Pool.GetAliveMutation(currentPosition, true);
+                    yield return pool.GetAliveMutation(currentPosition, true);
                     break;
             }
         }
     }
+
+    public void Return(AliveMutation mutation) => pool.Return(mutation);
 }

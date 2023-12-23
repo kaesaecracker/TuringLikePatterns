@@ -1,3 +1,5 @@
+using TuringLikePatterns.API;
+
 namespace TuringLikePatterns.Core.TickPhases;
 
 internal sealed class TickPhase<TProducer, TMut, TApplier>(
@@ -5,7 +7,7 @@ internal sealed class TickPhase<TProducer, TMut, TApplier>(
     TApplier applier,
     ILogger<TickPhase<TProducer, TMut, TApplier>> logger)
     : ITickPhase
-    where TMut : Mutation
+    where TMut : class, IMutation
     where TProducer : IMutationProducer<TMut>
     where TApplier : IMutationApplier<TMut>
 {

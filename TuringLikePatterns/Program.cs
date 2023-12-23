@@ -21,3 +21,4 @@ var mouseState = serviceProvider.GetRequiredService<TileAreaMouseState>();
 mouseState.RightClickTile.Subscribe(p => logger.LogDebug("right click on {P}", p));
 
 Gtk.Application.Run();
+

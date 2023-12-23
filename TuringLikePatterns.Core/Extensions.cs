@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
+using TuringLikePatterns.API;
 using TuringLikePatterns.Core.Models;
 using TuringLikePatterns.Core.TickPhases;
 
@@ -17,14 +18,14 @@ public static class Extensions
     public static IServiceCollection AddTickPhase<TProducer, TMutation, TConsumer>(
         this IServiceCollection serviceCollection)
         where TProducer : IMutationProducer<TMutation>
-        where TMutation : Mutation
+        where TMutation : class, IMutation
         where TConsumer : IMutationApplier<TMutation> =>
         serviceCollection.AddSingleton<ITickPhase, TickPhase<TProducer, TMutation, TConsumer>>();
 
     public static IServiceCollection AddTickPhase<TProducer, TMutation, TApplier>(
         this IServiceCollection serviceCollection, params object[] parameters)
         where TProducer : IMutationProducer<TMutation>
-        where TMutation : Mutation
+        where TMutation : class, IMutation
         where TApplier : IMutationApplier<TMutation>
     {
         return serviceCollection.AddSingleton<ITickPhase>(sp =>
@@ -48,12 +49,12 @@ public static class Extensions
             .AddStatistic("Top left", sp =>
             {
                 var bounds = sp.GetRequiredService<GameBounds>();
-                return () => bounds.TopLeft.Value.ToString();
+                return () => bounds.TopLeft.ToString();
             })
             .AddStatistic("Bottom right", sp =>
             {
                 var bounds = sp.GetRequiredService<GameBounds>();
-                return () => bounds.BottomRight.Value.ToString();
+                return () => bounds.BottomRight.ToString();
             })
             .AddStatistic("Ticks", sp =>
             {
@@ -75,15 +76,13 @@ public static class Extensions
             .AddTickPhase<TickIncrementProducer, TickIncrementMutation, TickIncrementApplier>();
     }
 
-    public static IServiceCollection AddCore(this IServiceCollection serviceCollection)
-    {
-        return serviceCollection
-            .AddTicking()
-            .AddCoreStatistics()
 
-            .AddSingleton<GameBounds>()
-            .AddSingleton<GameTileField>()
-            .AddSingleton<GameTicker>()
-            .AddSingleton<GameStateManager>();
+    public static IServiceCollection AddTuringLikePatterns(this IServiceCollection serviceCollection,
+        Action<TuringLikePatternsBuilder> configure)
+    {
+        serviceCollection.AddOptions<Quantities>();
+        var builder = new TuringLikePatternsBuilder(serviceCollection);
+        configure(builder);
+        return serviceCollection;
     }
 }

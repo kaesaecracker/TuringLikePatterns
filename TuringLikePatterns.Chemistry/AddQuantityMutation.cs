@@ -1,12 +1,10 @@
 using System;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Core;
-using TuringLikePatterns.Core.Models;
-using TuringLikePatterns.Core.TickPhases;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.Chemistry;
 
-public sealed record class AddQuantityMutation : Mutation, IResettable
+public sealed record class AddQuantityMutation : IMutation, IResettable
 {
     private Quantity? _quantityToChange;
 

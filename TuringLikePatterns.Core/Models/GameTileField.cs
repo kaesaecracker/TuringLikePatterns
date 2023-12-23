@@ -1,6 +1,10 @@
+using System.Collections;
+using System.Linq;
+using TuringLikePatterns.API;
+
 namespace TuringLikePatterns.Core.Models;
 
-public sealed class GameTileField
+public sealed class GameTileField : IGameTileField
 {
     private readonly Dictionary<GamePosition, GameTile> _raw;
     private readonly GameBounds _bounds;
@@ -27,7 +31,7 @@ public sealed class GameTileField
         }
     }
 
-    public GameTile GetOrCreate(GamePosition position)
+    public IGameTile GetOrCreate(GamePosition position)
     {
         if (_raw.TryGetValue(position, out var result))
             return result;
@@ -35,5 +39,10 @@ public sealed class GameTileField
         return this[position] = new GameTile();
     }
 
-    public IEnumerator<KeyValuePair<GamePosition, GameTile>> GetEnumerator() => _raw.GetEnumerator();
+    public IEnumerator<(GamePosition, IGameTile)> GetEnumerator()
+    {
+        return _raw.Select(kvp => (kvp.Key, (IGameTile)kvp.Value)).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

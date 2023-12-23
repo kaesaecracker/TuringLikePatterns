@@ -1,18 +1,20 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
-using TuringLikePatterns.Core;
-using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.GameOfLife;
 
 public static class Extensions
 {
-    public static IServiceCollection AddGameOfLife(this IServiceCollection services) => services
-        .AddKeyedSingleton<GameGrid<bool>>(Constants.GameOfLife)
-        .AddSingleton<GameOfLifeProducer>()
-        .AddInfiniteObjectPool<AliveMutation>()
-        .AddSingleton<AliveMutationApplier>()
-        .AddTickPhase<GameOfLifeProducer, AliveMutation, AliveMutationApplier>();
+    public static ITuringLikePatternsBuilder AddGameOfLife(this ITuringLikePatternsBuilder builder)
+    {
+        builder.Services
+            .AddKeyedSingleton<IGameGrid<bool>>(Constants.GameOfLife)
+            .AddSingleton<GameOfLifeProducer>()
+            .AddSingleton<AliveMutationApplier>()
+            .AddTickPhase<GameOfLifeProducer, AliveMutation, AliveMutationApplier>();
+        return builder;
+    }
 
     internal static AliveMutation GetAliveMutation(this ObjectPool<AliveMutation> pool, GamePosition position,
         bool isAlive)

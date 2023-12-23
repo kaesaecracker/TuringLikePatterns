@@ -1,8 +1,7 @@
+using System.Drawing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
-using SkiaSharp;
-using TuringLikePatterns.Core;
-using TuringLikePatterns.Core.Models;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.Chemistry;
 
@@ -16,27 +15,19 @@ public static class Extensions
         return instance;
     }
 
-    public static IServiceCollection AddChemistry(this IServiceCollection serviceProvider)
+    public static ITuringLikePatternsBuilder AddChemistry(this ITuringLikePatternsBuilder builder)
     {
-        return serviceProvider
-            .AddQuantity(new Quantity("water", SKColors.Aqua))
-            .AddQuantity(new Quantity("hydrogen", SKColors.Blue))
-            .AddQuantity(new Quantity("oxygen", SKColors.White))
-
+        builder
+            .AddPlane(new Quantity("water", Color.Aqua))
+            .AddPlane(new Quantity("hydrogen", Color.Blue))
+            .AddPlane(new Quantity("oxygen", Color.White));
+        builder.Services
             .AddSingleton<MakeWaterProducer>()
             .AddSingleton<BrownianMotionProducer>()
             .AddSingleton<AddQuantityApplier>()
-
             .AddTickPhase<BrownianMotionProducer, AddQuantityMutation, AddQuantityApplier>(1f, 0.01f)
             .AddTickPhase<MakeWaterProducer, AddQuantityMutation, AddQuantityApplier>(1f, 1f / 3f)
-
             .AddInfiniteObjectPool<AddQuantityMutation>();
-    }
-
-    public static IServiceCollection AddQuantity(this IServiceCollection serviceCollection, Quantity instance)
-    {
-        return serviceCollection
-            .AddSingleton(instance)
-            .AddKeyedSingleton(instance.Name, instance);
+        return builder;
     }
 }

@@ -1,9 +1,8 @@
-using TuringLikePatterns.Core.Models;
-using TuringLikePatterns.Core.TickPhases;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.Chemistry;
 
-public sealed class AddQuantityApplier(GameTileField tileField) : IMutationApplier<AddQuantityMutation>
+public sealed class AddQuantityApplier(IGameTileField tileField) : IMutationApplier<AddQuantityMutation>
 {
     public void ApplyMutation(AddQuantityMutation mutation)
     {

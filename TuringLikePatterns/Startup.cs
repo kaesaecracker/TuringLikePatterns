@@ -13,13 +13,18 @@ public static class Startup
     internal static ServiceProvider ConfigureServices()
     {
         return new ServiceCollection()
-            .AddCore()
-            .AddGameOfLife()
-            .AddChemistry()
+            .AddTuringLikePatterns(builder =>
+            {
+                builder.AddCore()
+                    .AddGameOfLife()
+                    .AddChemistry();
+            })
+            .AddInfiniteObjectPool<AliveMutation>()
             .AddGui()
             .AddLogging(builder => builder
                 .SetMinimumLevel(LogLevel.Trace)
                 .AddConsole())
+
             .BuildServiceProvider();
     }
 

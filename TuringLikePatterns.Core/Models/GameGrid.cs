@@ -1,3 +1,5 @@
+using TuringLikePatterns.API;
+
 namespace TuringLikePatterns.Core.Models;
 
 public sealed class GameGrid<T>(GameBounds gameBounds)
@@ -22,4 +24,12 @@ public sealed class GameGrid<T>(GameBounds gameBounds)
             }
         }
     }
+}
+
+public class GamePlane {}
+
+public sealed class GamePlane<T>(GameBounds gameBounds): GamePlane
+    where T : struct
+{
+    private readonly GameGrid<T> _grid = new (gameBounds);
 }

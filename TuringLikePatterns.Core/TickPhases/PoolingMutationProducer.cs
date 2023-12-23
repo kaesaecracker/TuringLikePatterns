@@ -1,9 +1,10 @@
 using Microsoft.Extensions.ObjectPool;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.Core.TickPhases;
 
 public abstract class PoolingMutationProducer<TMut>(ObjectPool<TMut> pool) : IMutationProducer<TMut>
-    where TMut : Mutation
+    where TMut : class, IMutation
 {
     protected ObjectPool<TMut> Pool { get; } = pool;
 

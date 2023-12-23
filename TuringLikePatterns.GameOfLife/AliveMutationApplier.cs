@@ -1,12 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
-using TuringLikePatterns.Core.Models;
-using TuringLikePatterns.Core.TickPhases;
+using TuringLikePatterns.API;
 
 namespace TuringLikePatterns.GameOfLife;
 
 public class AliveMutationApplier(
     [FromKeyedServices(Constants.GameOfLife)]
-    GameGrid<bool> aliveGrid
+    IGameGrid<bool> aliveGrid
 ) : IMutationApplier<AliveMutation>
 {
     public void ApplyMutation(AliveMutation mutation)

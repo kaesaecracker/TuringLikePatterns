@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TuringLikePatterns.Core\TuringLikePatterns.Core.csproj" />
+      <ProjectReference Include="..\TuringLikePatterns.API\TuringLikePatterns.API.csproj" />
     </ItemGroup>
 
 </Project>
